@@ -49,6 +49,7 @@ router.get('/state', async (req, res) => {
     const seedPair = await getActiveSeedPair(userId);
 
     res.json({
+      userId:             String(userId),
       balance:            balanceCents / 100,
       minBet:             MIN_BET_CENTS / 100,
       maxBet:             MAX_BET_CENTS / 100,
