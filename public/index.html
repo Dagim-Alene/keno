@@ -1721,18 +1721,18 @@
 
           <div class="bet-stepper-box">
             <button type="button" class="step-btn" id="betMinusBtn" aria-label="Decrease bet">−</button>
-            <div class="bet-display" id="betDisplayVal">$10.00</div>
+            <div class="bet-display" id="betDisplayVal">ETB 10.00</div>
             <button type="button" class="step-btn" id="betPlusBtn" aria-label="Increase bet">+</button>
           </div>
 
           <!-- Quick Chips Strip -->
           <div class="chip-strip" id="chipStrip" role="radiogroup" aria-label="Select bet chip amount">
-            <button type="button" class="chip-btn" data-chip="1">$1</button>
-            <button type="button" class="chip-btn" data-chip="5">$5</button>
-            <button type="button" class="chip-btn active" data-chip="10">$10</button>
-            <button type="button" class="chip-btn" data-chip="25">$25</button>
-            <button type="button" class="chip-btn" data-chip="50">$50</button>
-            <button type="button" class="chip-btn" data-chip="100">$100</button>
+            <button type="button" class="chip-btn" data-chip="1">1</button>
+            <button type="button" class="chip-btn" data-chip="5">5</button>
+            <button type="button" class="chip-btn active" data-chip="10">10</button>
+            <button type="button" class="chip-btn" data-chip="25">25</button>
+            <button type="button" class="chip-btn" data-chip="50">50</button>
+            <button type="button" class="chip-btn" data-chip="100">100</button>
           </div>
         </div>
 
@@ -1937,12 +1937,12 @@
       <div class="result-sheet">
         <div class="sheet-drag-handle"></div>
         <div class="result-title" id="resultTitle">Round Complete</div>
-        <div class="result-payout" id="resultPayoutText">$0.00</div>
+        <div class="result-payout" id="resultPayoutText">ETB 0.00</div>
         <div class="result-badge" id="resultBadge">0 of 0 matched</div>
 
         <div class="sheet-btn-group">
           <button type="button" class="btn-primary" id="playAgainBtn">
-            Play Again ($<span id="playAgainBetText">10</span>)
+            Play Again (ETB <span id="playAgainBetText">10</span>)
           </button>
           <button type="button" class="pill-btn" id="changeNumbersBtn" style="min-height: 48px; width: 100%; font-size: var(--text-sm);">
             Change Numbers
@@ -2017,6 +2017,10 @@
           try {
             tg.ready();
             tg.expand();
+            if (tg.initDataUnsafe?.user?.id) {
+              const pid = document.getElementById('playerIdBadge');
+              if (pid) pid.textContent = `ID: ${tg.initDataUnsafe.user.id}`;
+            }
             tg.MainButton.setText('CONNECTING…');
             tg.MainButton.disable();
             tg.MainButton.show();
@@ -2210,7 +2214,7 @@
       const changeNumbersBtn = document.getElementById('changeNumbersBtn');
 
       // --- Strict API Caller ---
-      async function apiRequest(endpoint, method = 'GET', body = null, customIdempotencyKey = null) {
+      async function apiRequest(endpoint, method = 'GET', body = null, customIdempotencyKey = null, timeoutMs = 15000) {
         const headers = { 'Content-Type': 'application/json' };
         if (window.Telegram?.WebApp?.initData) {
           headers['X-Telegram-Init-Data'] = window.Telegram.WebApp.initData;
@@ -2219,17 +2223,30 @@
           headers['Idempotency-Key'] = customIdempotencyKey || generateIdempotencyKey();
         }
 
-        const resp = await fetch(endpoint, {
-          method,
-          headers,
-          body: body ? JSON.stringify(body) : null
-        });
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
 
-        if (!resp.ok) {
-          const err = await resp.json().catch(() => ({ error: `Server error HTTP ${resp.status}` }));
-          throw new Error(err.error || `Server responded with ${resp.status}`);
+        try {
+          const resp = await fetch(endpoint, {
+            method,
+            headers,
+            body: body ? JSON.stringify(body) : null,
+            signal: controller.signal
+          });
+          clearTimeout(timer);
+
+          if (!resp.ok) {
+            const err = await resp.json().catch(() => ({ error: `Server error HTTP ${resp.status}` }));
+            throw new Error(err.error || `Server responded with ${resp.status}`);
+          }
+          return await resp.json();
+        } catch (e) {
+          clearTimeout(timer);
+          if (e.name === 'AbortError') {
+            throw new Error('Connection timed out. Server may be spinning up, please retry.');
+          }
+          throw e;
         }
-        return await resp.json();
       }
 
       // --- Refresh Balance Action ---
