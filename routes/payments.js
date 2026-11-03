@@ -102,15 +102,21 @@ router.post('/webhooks/payments', express.raw({ type: '*/*' }), async (req, res)
 // POST /api/withdraw/request
 // ---------------------------------------------------------------------------
 router.post('/api/withdraw/request', async (req, res) => {
-  const { amountCents, currency = 'USD' } = req.body;
+  // Accept both { amount } (in cents, from frontend) and { amountCents } for compatibility
+  const raw = req.body.amount ?? req.body.amountCents;
+  const amountCents = Number(raw);
+  const currency    = req.body.currency || 'ETB';
+  const accountMethod = (req.body.accountMethod || '').trim();
+  const accountNumber = (req.body.accountNumber || '').trim();
+
   if (!Number.isInteger(amountCents) || amountCents <= 0) {
-    return res.status(400).json({ error: 'amountCents must be a positive integer.' });
+    return res.status(400).json({ error: 'amount must be a positive integer (in cents).' });
+  }
+  if (!accountNumber) {
+    return res.status(400).json({ error: 'accountNumber is required.' });
   }
 
-  const idempotencyKey = req.headers['idempotency-key'];
-  if (!idempotencyKey) {
-    return res.status(400).json({ error: 'Idempotency-Key header is required.' });
-  }
+  const idempotencyKey = req.headers['idempotency-key'] || `wdr-${req.userId}-${Date.now()}`;
 
   try {
     let withdrawalId, ledgerDebitId;
@@ -124,12 +130,12 @@ router.post('/api/withdraw/request', async (req, res) => {
       );
       ledgerDebitId = ledgerId;
 
-      // Insert withdrawal request row
+      // Insert withdrawal request row (with account info)
       const { rows } = await client.query(
-        `INSERT INTO withdrawal_requests (user_id, currency, amount_cents, ledger_debit_id)
-         VALUES ($1, $2, $3, $4)
+        `INSERT INTO withdrawal_requests (user_id, currency, amount_cents, ledger_debit_id, account_method, account_number)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING id`,
-        [String(req.userId), currency, amountCents, String(ledgerDebitId)]
+        [String(req.userId), currency, amountCents, String(ledgerDebitId), accountMethod, accountNumber]
       );
       withdrawalId = rows[0].id;
 
