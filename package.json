@@ -1,0 +1,30 @@
+{
+  "name": "telegram-keno",
+  "version": "2.0.0",
+  "description": "Telegram Mini App Provably Fair Keno — PostgreSQL backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "cross-env NODE_ENV=development node server.js",
+    "db:start": "node scripts/start-db.js",
+    "db:stop": "node scripts/stop-db.js",
+    "migrate": "node scripts/migrate.js",
+    "verify": "node scripts/verify.js",
+    "audit": "node scripts/audit.js",
+    "test": "node --test tests/draw.test.js tests/wallet.test.js tests/limits.test.js tests/payments.test.js tests/requirements.test.js tests/integration_postgres.test.js",
+    "test:rtp": "node --test tests/rtp.test.js",
+    "test:integration": "node --test tests/integration_postgres.test.js",
+    "test:all": "node --test tests/draw.test.js tests/wallet.test.js tests/limits.test.js tests/payments.test.js tests/requirements.test.js tests/integration_postgres.test.js tests/rtp.test.js"
+  },
+  "dependencies": {
+    "cross-env": "^10.1.0",
+    "dotenv": "^18.0.9",
+    "express": "^4.22.3",
+    "express-rate-limit": "^8.7.2",
+    "helmet": "^8.3.0",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "pg-mem": "^3.0.14"
+  }
+}
