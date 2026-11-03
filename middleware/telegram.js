@@ -12,7 +12,7 @@
 
 const crypto = require('crypto');
 
-const BOT_TOKEN   = process.env.TELEGRAM_BOT_TOKEN || '';
+const BOT_TOKEN   = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
 const IS_DEV      = process.env.NODE_ENV !== 'production';
 const MAX_AGE_MS  = 60 * 60 * 1000; // 1 hour
 
@@ -92,6 +92,7 @@ function telegramAuth(req, res, next) {
       req.telegramUsername = username;
       return next();
     } catch (err) {
+      console.error('[telegramAuth] Signature validation failed:', err.message);
       return res.status(401).json({ error: `Unauthorized: ${err.message}` });
     }
   }

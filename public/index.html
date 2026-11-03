@@ -2610,7 +2610,13 @@
         await runDrawSequence(roundResult);
       }
 
-      playBtn.addEventListener('click', handlePlay);
+      playBtn.addEventListener('click', () => {
+        if (!state.isConnected) {
+          connectToServer();
+          return;
+        }
+        handlePlay();
+      });
 
       async function runDrawSequence(roundResult) {
         const drawnBalls = roundResult.drawn;
@@ -3077,8 +3083,16 @@
         playBtn.disabled = true;
         playBtn.querySelector('span').textContent = 'CONNECTING…';
 
+        const slowTimer = setTimeout(() => {
+          if (!state.isConnected) {
+            playBtn.disabled = false;
+            playBtn.querySelector('span').textContent = 'RETRY CONNECTION';
+          }
+        }, 5000);
+
         try {
-          const remoteState = await apiRequest('/api/state');
+          const remoteState = await apiRequest('/api/state', 'GET', null, null, 12000);
+          clearTimeout(slowTimer);
           state.isConnected = true;
           networkOverlay.style.display = 'none';
 
@@ -3101,6 +3115,7 @@
           setBoardDisabled(false);
           syncPlayButton();
         } catch (err) {
+          clearTimeout(slowTimer);
           state.isConnected = false;
           setBoardDisabled(true);
           syncPlayButton();

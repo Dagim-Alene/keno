@@ -64,9 +64,15 @@ app.use('/webhooks/payments', express.raw({ type: '*/*' }));
 app.use(express.json());
 
 // ---------------------------------------------------------------------------
-// Static files (public/index.html)
+// Static files (public/index.html) with no-cache for Telegram WebApp
 // ---------------------------------------------------------------------------
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // ---------------------------------------------------------------------------
 // Telegram auth middleware (sets req.userId on all /api/* routes)
