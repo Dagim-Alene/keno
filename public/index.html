@@ -1595,6 +1595,7 @@
     }
 
     .result-sheet {
+      position: relative;
       width: 100%;
       max-width: 480px;
       background: var(--bg-surface);
@@ -1609,6 +1610,22 @@
       align-items: center;
       text-align: center;
     }
+
+    .result-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      z-index: 5;
+    }
+    .result-close-btn:hover { color: var(--text-main); }
 
     .sheet-backdrop.visible .result-sheet {
       transform: translateY(0);
@@ -2181,15 +2198,14 @@
     <!-- Result Bottom Sheet -->
     <div class="sheet-backdrop" id="resultBackdrop" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
       <div class="result-sheet">
+        <button type="button" class="result-close-btn" id="resultCloseBtn" aria-label="Close result">✕</button>
         <div class="sheet-drag-handle"></div>
         <div class="result-title" id="resultTitle">Round Complete</div>
         <div class="result-payout" id="resultPayoutText">ETB 0.00</div>
         <div class="result-badge" id="resultBadge">0 of 0 matched</div>
 
         <div class="sheet-btn-group">
-          <button type="button" class="btn-primary" id="playAgainBtn">
-            Play Again (ETB <span id="playAgainBetText">10</span>)
-          </button>
+          <button type="button" class="btn-primary" id="playAgainBtn">Play Again (ETB <span id="playAgainBetText">10</span>)</button>
           <button type="button" class="pill-btn" id="changeNumbersBtn" style="min-height: 48px; width: 100%; font-size: var(--text-sm);">
             Change Numbers
           </button>
@@ -2850,8 +2866,7 @@
           playBtn.disabled = true;
           playBtn.querySelector('span').textContent = 'CONNECTION REQUIRED';
           if (tg && tg.MainButton) {
-            tg.MainButton.setText('CONNECTION REQUIRED');
-            tg.MainButton.disable();
+            tg.MainButton.hide();
           }
           return;
         }
@@ -3126,6 +3141,9 @@
       resultBackdrop.addEventListener('click', (e) => {
         if (e.target === resultBackdrop) hideResultSheet();
       });
+
+      const resCloseBtn = document.getElementById('resultCloseBtn');
+      if (resCloseBtn) resCloseBtn.addEventListener('click', hideResultSheet);
 
       playAgainBtn.addEventListener('click', () => {
         hideResultSheet();
