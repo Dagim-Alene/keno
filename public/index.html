@@ -1953,6 +1953,84 @@
 
   </div>
 
+    <!-- ── DEPOSIT MODAL ── -->
+    <div class="modal-overlay" id="depositModal" role="dialog" aria-modal="true" aria-label="Deposit">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-title">💳 Deposit Funds</div>
+
+        <!-- TeleBirr -->
+        <div class="bank-card">
+          <div class="bank-card-head">
+            <div class="bank-logo telebirr">T</div>
+            <div>
+              <div class="bank-name">TeleBirr</div>
+              <div class="bank-sub">Send to this number</div>
+            </div>
+          </div>
+          <div class="bank-account-row">
+            <span class="bank-account-num" id="telebirrNum">0982127526</span>
+            <button class="copy-btn" onclick="copyAccount('telebirrNum')">Copy</button>
+          </div>
+        </div>
+
+        <!-- CBE -->
+        <div class="bank-card">
+          <div class="bank-card-head">
+            <div class="bank-logo cbe">C</div>
+            <div>
+              <div class="bank-name">CBE (Commercial Bank of Ethiopia)</div>
+              <div class="bank-sub">Bank transfer</div>
+            </div>
+          </div>
+          <div class="bank-account-row">
+            <span class="bank-account-num" id="cbeNum">1000511782727</span>
+            <button class="copy-btn" onclick="copyAccount('cbeNum')">Copy</button>
+          </div>
+        </div>
+
+        <div class="dep-note">
+          <b>How to deposit:</b><br>
+          1. Send your amount via TeleBirr or CBE.<br>
+          2. Screenshot the transaction confirmation.<br>
+          3. Send the screenshot to <b>@mykenogamebot</b> on Telegram.<br>
+          4. Your balance will be credited within <b>30 minutes</b>.
+        </div>
+
+        <button type="button" class="wdr-submit" style="margin-top:16px;" onclick="document.getElementById('depositModal').classList.remove('open')">Close</button>
+      </div>
+    </div>
+
+    <!-- ── WITHDRAW MODAL ── -->
+    <div class="modal-overlay" id="withdrawModal" role="dialog" aria-modal="true" aria-label="Withdraw">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-title">💸 Withdraw Funds</div>
+
+        <div class="wdr-form-group">
+          <label class="wdr-label" for="wdrMethod">Payment Method</label>
+          <select class="wdr-select" id="wdrMethod">
+            <option value="telebirr">TeleBirr</option>
+            <option value="cbe">CBE (Commercial Bank of Ethiopia)</option>
+          </select>
+        </div>
+
+        <div class="wdr-form-group">
+          <label class="wdr-label" for="wdrAccount">Your Account Number / Phone</label>
+          <input class="wdr-input" type="text" id="wdrAccount" placeholder="e.g. 0911 234 567 or CBE account" inputmode="numeric" />
+        </div>
+
+        <div class="wdr-form-group">
+          <label class="wdr-label" for="wdrAmount">Amount (ETB)</label>
+          <input class="wdr-input" type="number" id="wdrAmount" placeholder="Minimum 50 ETB" min="50" step="1" inputmode="numeric" />
+        </div>
+
+        <button type="button" class="wdr-submit" id="wdrSubmitBtn" onclick="submitWithdraw()">Request Withdrawal</button>
+        <p class="wdr-note">Withdrawals are reviewed and processed manually within 24 hours. Your balance is debited immediately.</p>
+        <button type="button" class="wdr-submit" style="background:var(--bg-elevated);color:var(--text-main);border:1px solid var(--border-subtle);margin-top:8px;" onclick="document.getElementById('withdrawModal').classList.remove('open')">Cancel</button>
+      </div>
+    </div>
+
   <script>
     /*
       ========================================================================
@@ -3134,35 +3212,38 @@
         }
       }
 
-      // --- Boot Sequence ---
-      function boot() {
-        initTheme();
-        initTelegram();
-        initBoard();
-        renderBoardPicks();
-        renderPayoutLadder();
-        connectToServer();
-      }
+      // ── Modal Initialization ──
+      function initModals() {
+        try {
+          const depBtn = document.getElementById('depositBtn');
+          const wdrBtn = document.getElementById('withdrawBtn');
+          const depModal = document.getElementById('depositModal');
+          const wdrModal = document.getElementById('withdrawModal');
 
-      // ── Deposit / Withdraw Modal Logic ──
-      document.getElementById('depositBtn').addEventListener('click', () => {
-        document.getElementById('depositModal').classList.add('open');
-      });
-      document.getElementById('withdrawBtn').addEventListener('click', () => {
-        document.getElementById('withdrawModal').classList.add('open');
-      });
-      // Close modals when clicking backdrop
-      document.getElementById('depositModal').addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('open');
-      });
-      document.getElementById('withdrawModal').addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('open');
-      });
+          if (depBtn && depModal) {
+            depBtn.addEventListener('click', () => depModal.classList.add('open'));
+            depModal.addEventListener('click', function(e) {
+              if (e.target === this) this.classList.remove('open');
+            });
+          }
+          if (wdrBtn && wdrModal) {
+            wdrBtn.addEventListener('click', () => wdrModal.classList.add('open'));
+            wdrModal.addEventListener('click', function(e) {
+              if (e.target === this) this.classList.remove('open');
+            });
+          }
+        } catch (e) {
+          console.warn('[initModals note]', e);
+        }
+      }
 
       function copyAccount(id) {
-        const text = document.getElementById(id).textContent.replace(/\s/g,'');
+        const el = document.getElementById(id);
+        if (!el) return;
+        const text = el.textContent.replace(/\s/g,'');
         navigator.clipboard.writeText(text).then(() => showToast('Account number copied!'));
       }
+      window.copyAccount = copyAccount;
 
       async function submitWithdraw() {
         const method  = document.getElementById('wdrMethod').value;
@@ -3179,7 +3260,6 @@
           await apiRequest('/api/withdraw/request', 'POST', { amount: amountCents, accountMethod: method, accountNumber: account });
           document.getElementById('withdrawModal').classList.remove('open');
           showToast('✅ Withdrawal request submitted! Processed within 24 hours.');
-          // refresh balance
           const s = await apiRequest('/api/state');
           if (typeof s.balance === 'number') updateBalanceDisplay(s.balance);
         } catch (err) {
@@ -3187,6 +3267,22 @@
         } finally {
           btn.disabled = false; btn.textContent = 'Request Withdrawal';
         }
+      }
+      window.submitWithdraw = submitWithdraw;
+
+      // --- Boot Sequence ---
+      function boot() {
+        try {
+          initTheme();
+          initTelegram();
+          initBoard();
+          renderBoardPicks();
+          renderPayoutLadder();
+          initModals();
+        } catch (e) {
+          console.error('[boot setup error]', e);
+        }
+        connectToServer();
       }
 
       if (document.readyState === 'loading') {
@@ -3197,83 +3293,5 @@
 
     })();
   </script>
-    <!-- ── DEPOSIT MODAL ── -->
-    <div class="modal-overlay" id="depositModal" role="dialog" aria-modal="true" aria-label="Deposit">
-      <div class="modal-sheet">
-        <div class="modal-handle"></div>
-        <div class="modal-title">💳 Deposit Funds</div>
-
-        <!-- TeleBirr -->
-        <div class="bank-card">
-          <div class="bank-card-head">
-            <div class="bank-logo telebirr">T</div>
-            <div>
-              <div class="bank-name">TeleBirr</div>
-              <div class="bank-sub">Send to this number</div>
-            </div>
-          </div>
-          <div class="bank-account-row">
-            <span class="bank-account-num" id="telebirrNum">0982127526</span>
-            <button class="copy-btn" onclick="copyAccount('telebirrNum')">Copy</button>
-          </div>
-        </div>
-
-        <!-- CBE -->
-        <div class="bank-card">
-          <div class="bank-card-head">
-            <div class="bank-logo cbe">C</div>
-            <div>
-              <div class="bank-name">CBE (Commercial Bank of Ethiopia)</div>
-              <div class="bank-sub">Bank transfer</div>
-            </div>
-          </div>
-          <div class="bank-account-row">
-            <span class="bank-account-num" id="cbeNum">1000511782727</span>
-            <button class="copy-btn" onclick="copyAccount('cbeNum')">Copy</button>
-          </div>
-        </div>
-
-        <div class="dep-note">
-          <b>How to deposit:</b><br>
-          1. Send your amount via TeleBirr or CBE.<br>
-          2. Screenshot the transaction confirmation.<br>
-          3. Send the screenshot to <b>@mykenogamebot</b> on Telegram.<br>
-          4. Your balance will be credited within <b>30 minutes</b>.
-        </div>
-
-        <button type="button" class="wdr-submit" style="margin-top:16px;" onclick="document.getElementById('depositModal').classList.remove('open')">Close</button>
-      </div>
-    </div>
-
-    <!-- ── WITHDRAW MODAL ── -->
-    <div class="modal-overlay" id="withdrawModal" role="dialog" aria-modal="true" aria-label="Withdraw">
-      <div class="modal-sheet">
-        <div class="modal-handle"></div>
-        <div class="modal-title">💸 Withdraw Funds</div>
-
-        <div class="wdr-form-group">
-          <label class="wdr-label" for="wdrMethod">Payment Method</label>
-          <select class="wdr-select" id="wdrMethod">
-            <option value="telebirr">TeleBirr</option>
-            <option value="cbe">CBE (Commercial Bank of Ethiopia)</option>
-          </select>
-        </div>
-
-        <div class="wdr-form-group">
-          <label class="wdr-label" for="wdrAccount">Your Account Number / Phone</label>
-          <input class="wdr-input" type="text" id="wdrAccount" placeholder="e.g. 0911 234 567 or CBE account" inputmode="numeric" />
-        </div>
-
-        <div class="wdr-form-group">
-          <label class="wdr-label" for="wdrAmount">Amount (ETB)</label>
-          <input class="wdr-input" type="number" id="wdrAmount" placeholder="Minimum 50 ETB" min="50" step="1" inputmode="numeric" />
-        </div>
-
-        <button type="button" class="wdr-submit" id="wdrSubmitBtn" onclick="submitWithdraw()">Request Withdrawal</button>
-        <p class="wdr-note">Withdrawals are reviewed and processed manually within 24 hours. Your balance is debited immediately.</p>
-        <button type="button" class="wdr-submit" style="background:var(--bg-elevated);color:var(--text-main);border:1px solid var(--border-subtle);margin-top:8px;" onclick="document.getElementById('withdrawModal').classList.remove('open')">Cancel</button>
-      </div>
-    </div>
-
 </body>
 </html>
