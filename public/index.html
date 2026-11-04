@@ -870,14 +870,52 @@
     }
 
     @keyframes rollIn {
-      0% {
-        transform: translateY(-12px) scale(0.6) rotate(-40deg);
-        opacity: 0;
-      }
-      100% {
-        transform: translateY(0) scale(1) rotate(0deg);
-        opacity: 1;
-      }
+      0%   { transform: translateY(-12px) scale(0.6) rotate(-40deg); opacity: 0; }
+      60%  { transform: translateY(2px)   scale(1.15) rotate(5deg);  opacity: 1; }
+      80%  { transform: translateY(-1px)  scale(0.95) rotate(-2deg); opacity: 1; }
+      100% { transform: translateY(0)     scale(1)    rotate(0deg);  opacity: 1; }
+    }
+
+    /* ── Cinematic draw: spotlight flash on hit tile ── */
+    @keyframes hitSpotlight {
+      0%   { box-shadow: 0 0 0   0  rgba(245,158,11,0); }
+      25%  { box-shadow: 0 0 32px 12px rgba(245,158,11,0.9); }
+      60%  { box-shadow: 0 0 18px 6px  rgba(245,158,11,0.6); }
+      100% { box-shadow: 0 0 14px 4px  rgba(245,158,11,0.45); }
+    }
+    @keyframes drawnFlash {
+      0%   { background: #fff; }
+      40%  { background: var(--ball-ivory); }
+      100% { background: var(--ball-ivory); }
+    }
+    .num-tile.reveal-drawn {
+      animation: tileReveal 0.42s cubic-bezier(0.34,1.3,0.64,1) forwards,
+                 drawnFlash 0.3s ease-out forwards;
+    }
+    .num-tile.reveal-hit {
+      animation: tileRevealHit 0.5s cubic-bezier(0.34,1.4,0.64,1) forwards,
+                 hitSpotlight  0.5s ease-out forwards;
+    }
+
+    /* Tray ball "just landed" shake for hits */
+    @keyframes trayHitShake {
+      0%   { transform: scale(1.3) rotate(-6deg); }
+      30%  { transform: scale(1.1) rotate(4deg);  }
+      60%  { transform: scale(1.18) rotate(-2deg); }
+      100% { transform: scale(1.06) rotate(0deg); }
+    }
+    .tray-ball.cinematic-pop {
+      animation: rollIn 0.42s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .tray-ball.cinematic-hit {
+      animation: rollIn 0.42s cubic-bezier(0.16,1,0.3,1) forwards,
+                 trayHitShake 0.45s 0.42s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    /* "Ball incoming" indicator glow on tray while drawing */
+    .ball-tray-row.drawing-active {
+      border-radius: var(--radius-sm);
+      outline: 1.5px solid rgba(20,184,166,0.35);
+      outline-offset: 2px;
     }
 
     /* 80-Number Board */
@@ -4018,29 +4056,56 @@
       }
 
       // ── Draw balls from SSE events ──
-      function applyLiveBall(ballIndex, num) {
+      function applyLiveBall(ballIndex, num, instant = false) {
+        const isHit = live.myTickets.some(t => (t.picks || []).includes(num));
+
+        // ── Tray ball ──
         const trayBall = document.createElement('div');
-        const isHit = state.picks.has(num);
-        trayBall.className = `tray-ball ${isHit ? 'is-hit' : ''}`;
         trayBall.textContent = num;
+        if (instant) {
+          trayBall.className = `tray-ball ${isHit ? 'is-hit' : ''}`;
+        } else {
+          trayBall.className = `tray-ball ${isHit ? 'is-hit cinematic-hit' : 'cinematic-pop'}`;
+          // Remove animation class after it completes so CSS transitions can take over
+          trayBall.addEventListener('animationend', () => {
+            trayBall.classList.remove('cinematic-pop', 'cinematic-hit');
+          }, { once: true });
+        }
         ballTrayRow.appendChild(trayBall);
+        // Auto-scroll tray to show latest ball
+        ballTrayRow.scrollLeft = ballTrayRow.scrollWidth;
         trayCount.textContent = ballIndex + 1;
 
+        // ── Board tile ──
         const tile = document.getElementById(`tile_${num}`);
         if (tile) {
-          tile.classList.remove('drawn', 'hit');
-          tile.classList.add(isHit ? 'hit' : 'drawn');
+          tile.classList.remove('drawn', 'hit', 'reveal-drawn', 'reveal-hit');
+          if (instant) {
+            tile.classList.add(isHit ? 'hit' : 'drawn');
+          } else {
+            // Force reflow so animation re-triggers
+            void tile.offsetWidth;
+            tile.classList.add(isHit ? 'hit' : 'drawn');
+            tile.classList.add(isHit ? 'reveal-hit' : 'reveal-drawn');
+            tile.addEventListener('animationend', () => {
+              tile.classList.remove('reveal-drawn', 'reveal-hit');
+            }, { once: true });
+          }
         }
 
-        if (isHit) { playHitChime(live.myTickets.length); triggerHaptic('success'); }
-        else { playTickSound(); triggerHaptic('light'); }
+        if (!instant) {
+          if (isHit) { playHitChime(live.myTickets.length); triggerHaptic('success'); }
+          else        { playTickSound();                     triggerHaptic('light');   }
+        }
       }
 
+      // Late-join: fill already-drawn balls instantly with no sound/haptic
       function applyDrawnSoFar(drawn) {
         ballTrayRow.innerHTML = '';
         trayCount.textContent = '0';
-        document.querySelectorAll('.num-tile').forEach(t => t.classList.remove('drawn', 'hit'));
-        (drawn || []).forEach((num, i) => applyLiveBall(i, num));
+        document.querySelectorAll('.num-tile').forEach(t => t.classList.remove('drawn', 'hit', 'reveal-drawn', 'reveal-hit'));
+        (drawn || []).forEach((num, i) => applyLiveBall(i, num, true));
+        ballTrayRow.scrollLeft = ballTrayRow.scrollWidth;
       }
 
       // ── SSE Connection ──
@@ -4074,8 +4139,9 @@
             updateLiveHeader({ round: live.round, paused: live.paused, serverTime: data.serverTime });
             // Clear board for new round
             ballTrayRow.innerHTML = '';
+            ballTrayRow.classList.remove('drawing-active');
             trayCount.textContent = '0';
-            document.querySelectorAll('.num-tile').forEach(t => t.classList.remove('drawn', 'hit'));
+            document.querySelectorAll('.num-tile').forEach(t => t.classList.remove('drawn', 'hit', 'reveal-drawn', 'reveal-hit'));
             live.myTickets = [];
             updateMyTicketCard([]);
             showToast(`🎲 Round #${data.round?.roundNumber} betting open — place your bet!`);
@@ -4097,7 +4163,8 @@
           try {
             const data = JSON.parse(e.data);
             if (live.round && Number(live.round.roundNumber) === Number(data.roundNumber)) {
-              applyLiveBall(data.index, data.num);
+              ballTrayRow.classList.add('drawing-active');
+              applyLiveBall(data.index, data.ball);
             }
           } catch(err) { console.warn('[SSE round:ball parse]', err); }
         });
@@ -4105,6 +4172,7 @@
         es.addEventListener('round:result', (e) => {
           try {
             const data = JSON.parse(e.data);
+            ballTrayRow.classList.remove('drawing-active');
             // Refresh balance and tickets via poll
             refreshLiveSnapshot();
           } catch(err) { console.warn('[SSE round:result parse]', err); }
