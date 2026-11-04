@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keno Admin Control Center</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #131c2e;
+      --border: #23314d;
+      --teal: #14b8a6;
+      --gold: #f59e0b;
+      --red: #ef4444;
+      --green: #10b981;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; font-size: 14px; }
+    .container { max-width: 1050px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px; }
+    h1 { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 9999px; font-weight: 700; background: var(--border); }
+    .badge.green { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+    .badge.red { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+    .badge.gold { background: rgba(245, 158, 11, 0.2); color: var(--gold); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .tab-btn { background: none; border: none; color: var(--muted); padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; }
+    .tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { font-size: 11px; text-transform: uppercase; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+    .btn { padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; border: none; transition: opacity 0.15s; }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-teal { background: var(--teal); color: #042f2e; }
+    .btn:hover { opacity: 0.85; }
+    .btn-group { display: flex; gap: 6px; }
+    .empty-state { text-align: center; color: var(--muted); padding: 30px; }
+    .auth-banner { display: flex; gap: 8px; align-items: center; }
+    .token-input { background: var(--bg); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; width: 220px; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🛡️ Keno Administration <span class="badge green">Live Controller</span></h1>
+      <div class="auth-banner">
+        <input type="password" id="adminTokenInput" class="token-input" placeholder="Admin Token" />
+        <button type="button" class="btn btn-teal" onclick="saveToken()">Set Token</button>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('deposits')">📥 Deposits (<span id="depCount">0</span>)</button>
+      <button class="tab-btn" onclick="switchTab('withdrawals')">💸 Withdrawals (<span id="wdrCount">0</span>)</button>
+      <button class="tab-btn" onclick="switchTab('game')">⚙️ Game Controls</button>
+      <button class="tab-btn" onclick="switchTab('audit')">📋 Audit Log</button>
+    </div>
+
+    <!-- TAB 1: DEPOSITS -->
+    <div id="tab-deposits" class="tab-content active">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3>Pending Manual Deposits</h3>
+          <button class="btn btn-teal" onclick="loadDeposits()">↻ Refresh</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Ref Code</th>
+              <th>Tx Ref / Note</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="depositsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: WITHDRAWALS -->
+    <div id="tab-withdrawals" class="tab-content">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3>Pending Withdrawals</h3>
+          <button class="btn btn-teal" onclick="loadWithdrawals()">↻ Refresh</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Account Number</th>
+              <th>Requested</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawalsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: GAME CONTROLS -->
+    <div id="tab-game" class="tab-content">
+      <div class="card">
+        <h3 style="margin-bottom:12px;">Game Lifecycle Control</h3>
+        <p style="color:var(--muted); margin-bottom:16px;">Killswitch pauses new rounds after current round settles. Players will see a paused message.</p>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <button type="button" id="pauseBtn" class="btn btn-red" onclick="pauseGame()">🛑 Pause Game</button>
+          <button type="button" id="resumeBtn" class="btn btn-green" onclick="resumeGame()">▶️ Resume Game</button>
+          <span id="gameStatusBadge" class="badge green">Status: Active</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: AUDIT LOG -->
+    <div id="tab-audit" class="tab-content">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3>Admin Audit Log (Last 100 Actions)</h3>
+          <button class="btn btn-teal" onclick="loadAuditLog()">↻ Refresh</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Admin</th>
+              <th>Action</th>
+              <th>Entity</th>
+              <th>Details</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let token = localStorage.getItem('keno_admin_token') || '';
+    if (token) document.getElementById('adminTokenInput').value = token;
+
+    function saveToken() {
+      token = document.getElementById('adminTokenInput').value.trim();
+      localStorage.setItem('keno_admin_token', token);
+      alert('Token saved');
+      loadAll();
+    }
+
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'x-admin-token': token,
+      };
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'deposits') loadDeposits();
+      if (name === 'withdrawals') loadWithdrawals();
+      if (name === 'audit') loadAuditLog();
+    }
+
+    async function loadDeposits() {
+      try {
+        const res = await fetch('/api/admin/deposits', { headers: authHeaders() });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        document.getElementById('depCount').textContent = data.length;
+        const tbody = document.getElementById('depositsTableBody');
+        tbody.innerHTML = data.length === 0 ? '<tr><td colspan="8" class="empty-state">No pending deposits</td></tr>' :
+          data.map(d => `
+            <tr>
+              <td>#${d.id}</td>
+              <td><b>${d.username}</b> (ID: ${d.userId})</td>
+              <td><b style="color:var(--gold);">ETB ${d.amount.toFixed(2)}</b></td>
+              <td><span class="badge">${d.method}</span></td>
+              <td><code>${d.referenceCode}</code></td>
+              <td>${d.txReference || '—'} ${d.note ? '<br><small>'+d.note+'</small>' : ''}</td>
+              <td>${new Date(d.createdAt).toLocaleTimeString()}</td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-green" onclick="approveDeposit(${d.id})">Approve</button>
+                  <button class="btn btn-red" onclick="rejectDeposit(${d.id})">Reject</button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function approveDeposit(id) {
+      if (!confirm('Approve deposit #' + id + '? Wallet will be credited immediately.')) return;
+      const res = await fetch('/api/admin/deposits/' + id + '/approve', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ note: 'Approved via admin console' }),
+      });
+      if (res.ok) { alert('Deposit approved!'); loadDeposits(); }
+      else alert('Failed: ' + (await res.json()).error);
+    }
+
+    async function rejectDeposit(id) {
+      const reason = prompt('Reason for rejection:');
+      if (!reason) return;
+      const res = await fetch('/api/admin/deposits/' + id + '/reject', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ note: reason }),
+      });
+      if (res.ok) { alert('Deposit rejected.'); loadDeposits(); }
+      else alert('Failed: ' + (await res.json()).error);
+    }
+
+    async function loadWithdrawals() {
+      try {
+        const res = await fetch('/api/admin/withdrawals', { headers: authHeaders() });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        document.getElementById('wdrCount').textContent = data.length;
+        const tbody = document.getElementById('withdrawalsTableBody');
+        tbody.innerHTML = data.length === 0 ? '<tr><td colspan="7" class="empty-state">No pending withdrawals</td></tr>' :
+          data.map(w => `
+            <tr>
+              <td>#${w.id}</td>
+              <td><b>${w.username}</b> (ID: ${w.userId})</td>
+              <td><b style="color:var(--teal);">ETB ${w.amount.toFixed(2)}</b></td>
+              <td><span class="badge">${w.accountMethod || 'telebirr'}</span></td>
+              <td><code>${w.accountNumber || '—'}</code></td>
+              <td>${new Date(w.createdAt).toLocaleTimeString()}</td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-green" onclick="approveWithdrawal(${w.id})">Mark Paid</button>
+                  <button class="btn btn-red" onclick="rejectWithdrawal(${w.id})">Reject & Refund</button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function approveWithdrawal(id) {
+      if (!confirm('Mark withdrawal #' + id + ' as paid?')) return;
+      const res = await fetch('/api/admin/withdraw/' + id + '/approve', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ note: 'Paid manually by admin' }),
+      });
+      if (res.ok) { alert('Withdrawal marked as paid!'); loadWithdrawals(); }
+      else alert('Failed: ' + (await res.json()).error);
+    }
+
+    async function rejectWithdrawal(id) {
+      const reason = prompt('Reason for rejection (funds will be refunded to player):');
+      if (!reason) return;
+      const res = await fetch('/api/admin/withdraw/' + id + '/reject', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ note: reason }),
+      });
+      if (res.ok) { alert('Withdrawal rejected and refunded.'); loadWithdrawals(); }
+      else alert('Failed: ' + (await res.json()).error);
+    }
+
+    async function pauseGame() {
+      if (!confirm('Pause live game? No new rounds will start after the active one finishes.')) return;
+      const res = await fetch('/admin/game/pause', { method: 'POST', headers: authHeaders() });
+      if (res.ok) {
+        alert('Game paused.');
+        document.getElementById('gameStatusBadge').textContent = 'Status: Paused';
+        document.getElementById('gameStatusBadge').className = 'badge red';
+      }
+    }
+
+    async function resumeGame() {
+      const res = await fetch('/admin/game/resume', { method: 'POST', headers: authHeaders() });
+      if (res.ok) {
+        alert('Game resumed!');
+        document.getElementById('gameStatusBadge').textContent = 'Status: Active';
+        document.getElementById('gameStatusBadge').className = 'badge green';
+      }
+    }
+
+    async function loadAuditLog() {
+      try {
+        const res = await fetch('/api/admin/audit-log', { headers: authHeaders() });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const tbody = document.getElementById('auditTableBody');
+        tbody.innerHTML = data.length === 0 ? '<tr><td colspan="6" class="empty-state">No audit entries</td></tr>' :
+          data.map(a => `
+            <tr>
+              <td>${new Date(a.created_at).toLocaleString()}</td>
+              <td><b>${a.admin_id}</b></td>
+              <td><code>${a.action}</code></td>
+              <td>${a.entity_type || '—'} #${a.entity_id || '—'}</td>
+              <td><small>${JSON.stringify(a.details)}</small></td>
+              <td><small>${a.ip || '—'}</small></td>
+            </tr>
+          `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function loadAll() {
+      loadDeposits();
+      loadWithdrawals();
+    }
+
+    loadAll();
+  </script>
+</body>
+</html>

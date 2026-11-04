@@ -13,10 +13,6 @@ const { pool } = require('../db/pool');
 const RG_ENABLED = process.env.RG_ENABLED === 'true';
 
 router.post('/limits', async (req, res) => {
-  if (!RG_ENABLED) {
-    return res.status(503).json({ error: 'Responsible gaming limits are not active yet.', code: 'RG_NOT_ENABLED' });
-  }
-
   const { dailyLossLimitCents, maxBetCents } = req.body;
 
   if (dailyLossLimitCents !== undefined &&
@@ -28,8 +24,33 @@ router.post('/limits', async (req, res) => {
     return res.status(400).json({ error: 'maxBetCents must be a positive number.' });
   }
 
-  // Store limits on user row (add columns in a future migration if RG_ENABLED is turned on)
-  res.json({ ok: true });
+  try {
+    const updates = [];
+    const params = [];
+    let idx = 1;
+
+    if (dailyLossLimitCents !== undefined) {
+      updates.push(`daily_loss_limit_cents = $${idx++}`);
+      params.push(dailyLossLimitCents === 0 ? null : dailyLossLimitCents);
+    }
+    if (maxBetCents !== undefined) {
+      updates.push(`max_bet_cents = $${idx++}`);
+      params.push(maxBetCents);
+    }
+
+    if (updates.length > 0) {
+      params.push(String(req.userId));
+      await pool.query(
+        `UPDATE users SET ${updates.join(', ')} WHERE id = $${idx}`,
+        params
+      );
+    }
+
+    res.json({ ok: true, dailyLossLimitCents, maxBetCents });
+  } catch (err) {
+    console.error('[POST /api/user/limits]', err);
+    res.status(500).json({ error: 'Failed to update limits.' });
+  }
 });
 
 router.post('/self-exclude', async (req, res) => {

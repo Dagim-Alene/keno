@@ -147,4 +147,8 @@ describe('PostgreSQL Real Integration Tests', async () => {
       /ledger_entries is append-only/
     );
   });
+
+  after(async () => {
+    await pool.end();
+  });
 });

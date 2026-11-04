@@ -11,10 +11,13 @@ const { pool } = require('../db/pool');
 // ---------------------------------------------------------------------------
 // Configuration from environment
 // ---------------------------------------------------------------------------
-const MAX_BET_CENTS      = BigInt(process.env.MAX_BET_CENTS      || 10_000);
-const DAILY_LOSS_LIMIT   = BigInt(process.env.DAILY_LOSS_LIMIT_CENTS || 50_000);
-const MIN_AGE_YEARS      = Number(process.env.MIN_AGE_YEARS      || 18);
-const BLOCKED_COUNTRIES  = (process.env.BLOCKED_COUNTRIES || '')
+const MAX_BET_CENTS              = BigInt(process.env.MAX_BET_CENTS || 10_000);
+// DEFAULT_DAILY_LOSS_LIMIT_CENTS: 0 or unset means NO limit by default.
+// Supports backward compatibility with DAILY_LOSS_LIMIT_CENTS if explicitly set.
+const rawDailyLossLimitEnv = process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS ?? process.env.DAILY_LOSS_LIMIT_CENTS;
+const DEFAULT_DAILY_LOSS_LIMIT   = BigInt(rawDailyLossLimitEnv ? Number(rawDailyLossLimitEnv) : 0);
+const MIN_AGE_YEARS              = Number(process.env.MIN_AGE_YEARS || 18);
+const BLOCKED_COUNTRIES          = (process.env.BLOCKED_COUNTRIES || '')
   .split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
 
 // ---------------------------------------------------------------------------
@@ -110,20 +113,48 @@ async function checkMaxBet(betCents) {
 }
 
 async function checkDailyLossLimit(userId) {
+  // 1. Fetch user's custom daily loss limit if any
+  let userLimit = null;
+  try {
+    const { rows: uRows } = await pool.query(
+      `SELECT daily_loss_limit_cents FROM users WHERE id = $1`,
+      [String(userId)]
+    );
+    if (uRows.length > 0 && uRows[0].daily_loss_limit_cents != null) {
+      userLimit = BigInt(uRows[0].daily_loss_limit_cents);
+    }
+  } catch (_) {
+    // If column doesn't exist yet in mock db/tests, fallback to env
+  }
+
+  // Determine effective limit:
+  // User's custom limit takes precedence if set.
+  // Otherwise, default from env applies (0 means NO limit).
+  const effectiveLimit = userLimit !== null ? userLimit : DEFAULT_DAILY_LOSS_LIMIT;
+
+  // If effective limit is 0 or negative, daily loss limit is disabled
+  if (effectiveLimit <= 0n) {
+    return;
+  }
+
+  // Calculate start of day (midnight UTC / local)
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
   // Sum of bets placed today (bet entries are negative in the ledger)
   const { rows } = await pool.query(
     `SELECT COALESCE(SUM(-amount), 0)::bigint AS daily_loss
      FROM ledger_entries
      WHERE user_id = $1
        AND type = 'bet'
-       AND created_at >= CURRENT_DATE::timestamptz`,
-    [String(userId)]
+       AND created_at >= $2`,
+    [String(userId), startOfDay.toISOString()]
   );
   const dailyLoss = BigInt(rows[0].daily_loss);
-  if (dailyLoss >= DAILY_LOSS_LIMIT) {
+  if (dailyLoss >= effectiveLimit) {
     throw limitError(
       'DAILY_LOSS_LIMIT',
-      `You have reached your daily loss limit of $${(Number(DAILY_LOSS_LIMIT) / 100).toFixed(2)}.`
+      `You have reached your daily loss limit of $${(Number(effectiveLimit) / 100).toFixed(2)}.`
     );
   }
 }

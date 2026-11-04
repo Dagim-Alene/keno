@@ -136,13 +136,12 @@ tests/
 
 ## Responsible Gaming
 
-`POST /api/user/limits` and `POST /api/user/self-exclude` are wired but guarded by:
+`POST /api/user/limits` allows players to set their personal daily loss limit and max single bet.
 
-```env
-RG_ENABLED=false   # set to true once endpoints are fully implemented
-```
-
-When `false`, the server returns `503 RG_NOT_ENABLED` and the frontend shows "Available soon" labels.
+### Daily Loss Limit Configuration
+- `DEFAULT_DAILY_LOSS_LIMIT_CENTS`: Set in `.env`. Setting to `0` or leaving unset means **NO forced daily loss limit** by default. No player is capped unless they choose to set a personal limit or a non-zero system default is specified.
+- **Regulatory Note**: Even when the default is set to `0`, responsible gaming tools remain active and accessible via `POST /api/user/limits` so that players can set voluntary limits as required by regulators.
+- Self-exclusion (`POST /api/user/self-exclude`), age verification, max single bet, per-ticket/per-round payout caps, and rate limits remain active and enforced.
 
 ---
 

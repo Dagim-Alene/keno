@@ -25,6 +25,7 @@ describe('Limits service', async () => {
         id TEXT PRIMARY KEY, username TEXT,
         status TEXT NOT NULL DEFAULT 'active',
         country TEXT, date_of_birth DATE, excluded_until TIMESTAMPTZ,
+        daily_loss_limit_cents BIGINT, max_bet_cents BIGINT,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
     `);
@@ -135,6 +136,72 @@ describe('Limits service', async () => {
       (err) => { assert.equal(err.code, 'MAX_BET_EXCEEDED'); return true; }
     );
     process.env.MAX_BET_CENTS = saved;
+    delete require.cache[require.resolve('../services/limits')];
+  });
+
+  test('user with no limit set and default 0 can lose any amount without block', async () => {
+    delete require.cache[require.resolve('../services/limits')];
+    const prevDefault = process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS;
+    const prevLoss = process.env.DAILY_LOSS_LIMIT_CENTS;
+    delete process.env.DAILY_LOSS_LIMIT_CENTS;
+    process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS = '0';
+    const { checkDailyLossLimit } = require('../services/limits');
+
+    await insertUser(5006);
+    // Insert massive loss in ledger
+    await dbPool.query(
+      `INSERT INTO ledger_entries (user_id, currency, type, amount, balance_after, idempotency_key)
+       VALUES ('5006', 'USD', 'bet', -99999999, 0, 'loss_test_1')`
+    );
+
+    // Must not reject
+    await assert.doesNotReject(() => checkDailyLossLimit(5006));
+
+    if (prevDefault !== undefined) process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS = prevDefault;
+    else delete process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS;
+    if (prevLoss !== undefined) process.env.DAILY_LOSS_LIMIT_CENTS = prevLoss;
+    delete require.cache[require.resolve('../services/limits')];
+  });
+
+  test('user who sets personal daily loss limit is blocked when exceeding it', async () => {
+    delete require.cache[require.resolve('../services/limits')];
+    process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS = '0';
+    const { checkDailyLossLimit } = require('../services/limits');
+
+    // User 5007 with personal limit of 5000 cents ($50)
+    await insertUser(5007);
+    await dbPool.query(
+      `UPDATE users SET daily_loss_limit_cents = 5000 WHERE id = '5007'`
+    );
+    await dbPool.query(
+      `INSERT INTO ledger_entries (user_id, currency, type, amount, balance_after, idempotency_key)
+       VALUES ('5007', 'USD', 'bet', -6000, 0, 'loss_test_2')`
+    );
+
+    await assert.rejects(
+      () => checkDailyLossLimit(5007),
+      (err) => { assert.equal(err.code, 'DAILY_LOSS_LIMIT'); return true; }
+    );
+
+    delete require.cache[require.resolve('../services/limits')];
+  });
+
+  test('env DEFAULT_DAILY_LOSS_LIMIT_CENTS above 0 applies to user with no personal limit', async () => {
+    delete require.cache[require.resolve('../services/limits')];
+    process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS = '2000'; // 20 ETB default
+    const { checkDailyLossLimit } = require('../services/limits');
+
+    await insertUser(5008); // no personal limit
+    await dbPool.query(
+      `INSERT INTO ledger_entries (user_id, currency, type, amount, balance_after, idempotency_key)
+       VALUES ('5008', 'USD', 'bet', -3000, 0, 'loss_test_3')`
+    );
+
+    await assert.rejects(
+      () => checkDailyLossLimit(5008),
+      (err) => { assert.equal(err.code, 'DAILY_LOSS_LIMIT'); return true; }
+    );
+
     delete require.cache[require.resolve('../services/limits')];
   });
 });

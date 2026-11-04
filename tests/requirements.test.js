@@ -12,7 +12,7 @@
  * 8. Webhook rejects bad signature, replayed payment credits only once.
  */
 
-const { test, describe, before } = require('node:test');
+const { test, describe, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
@@ -170,12 +170,17 @@ describe('Specific Requirements Verification Suite', () => {
       );
     });
 
-    test('daily loss limit blocks bets exceeding limit', async () => {
+    test('daily loss limit blocks bets exceeding limit when limit is configured on user', async () => {
       const runId = Date.now();
       const userId = BigInt(`7006${String(runId).slice(-6)}`);
       const client = await pool.connect();
       try {
         await ensureUser(client, userId, `user_${userId}`);
+        // Set user's personal daily loss limit to 50,000 cents ($500)
+        await client.query(
+          `UPDATE users SET daily_loss_limit_cents = 50000 WHERE id = $1`,
+          [String(userId)]
+        );
         // Insert bet entries totaling 60,000 cents ($600), exceeding $500 limit
         await client.query(
           `INSERT INTO ledger_entries (user_id, currency, type, amount, balance_after, ref_type, created_at)
@@ -316,5 +321,9 @@ describe('Specific Requirements Verification Suite', () => {
       const validSig = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
       assert.equal(provider.verifyWebhookSignature(rawBody, validSig), true);
     });
+  });
+
+  after(async () => {
+    await pool.end();
   });
 });

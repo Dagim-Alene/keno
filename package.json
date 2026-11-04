@@ -11,10 +11,11 @@
     "migrate": "node scripts/migrate.js",
     "verify": "node scripts/verify.js",
     "audit": "node scripts/audit.js",
-    "test": "node --test tests/draw.test.js tests/wallet.test.js tests/limits.test.js tests/payments.test.js tests/requirements.test.js tests/integration_postgres.test.js",
+    "reconcile": "node scripts/reconcile.js",
+    "test": "node --test tests/draw.test.js tests/wallet.test.js tests/limits.test.js tests/payments.test.js tests/requirements.test.js tests/integration_postgres.test.js tests/scheduler.test.js tests/tickets.test.js tests/admin.test.js tests/fairness_round.test.js tests/bet_units.test.js tests/hardening_regression.test.js",
     "test:rtp": "node --test tests/rtp.test.js",
     "test:integration": "node --test tests/integration_postgres.test.js",
-    "test:all": "node --test tests/draw.test.js tests/wallet.test.js tests/limits.test.js tests/payments.test.js tests/requirements.test.js tests/integration_postgres.test.js tests/rtp.test.js"
+    "test:all": "node --test tests/*.test.js"
   },
   "dependencies": {
     "cross-env": "^10.1.0",

@@ -1822,6 +1822,314 @@
         display: none !important;
       }
     }
+
+    /* Live Round Header & Bar */
+    .live-round-header {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    .live-round-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .live-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal-glow);
+      box-shadow: 0 0 8px var(--teal-glow);
+      animation: pulseLive 1.8s infinite;
+    }
+    @keyframes pulseLive {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .live-round-num {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+    .live-phase-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .phase-betting {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .phase-locked {
+      background: rgba(245, 158, 11, 0.2);
+      color: #FBBF24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    .phase-drawing {
+      background: rgba(99, 102, 241, 0.2);
+      color: #818CF8;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+    .phase-result {
+      background: rgba(20, 184, 166, 0.2);
+      color: #2DD4BF;
+      border: 1px solid rgba(20, 184, 166, 0.4);
+    }
+    .live-timer-box {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .live-timer-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .live-countdown {
+      font-size: 18px;
+      font-weight: 900;
+      font-family: monospace;
+      color: var(--gold-glow);
+    }
+
+    /* Live Game Alert / Paused Banner */
+    .game-paused-banner {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #FCA5A5;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    /* My Ticket Card */
+    .my-ticket-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .my-ticket-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .my-ticket-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--teal-glow);
+    }
+    .my-ticket-note {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .ticket-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 12px;
+    }
+    .ticket-picks {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .ticket-bet {
+      font-weight: 700;
+      color: var(--gold-glow);
+    }
+
+    /* Recent Rounds Strip */
+    .recent-strip-container {
+      margin-bottom: 10px;
+    }
+    .recent-strip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      padding: 0 2px;
+    }
+    .recent-strip-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .recent-strip {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .recent-strip::-webkit-scrollbar { display: none; }
+    .recent-round-pill {
+      flex: 0 0 auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+      min-width: 60px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+    .recent-round-pill:hover {
+      border-color: var(--teal-glow);
+    }
+    .recent-pill-num {
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .recent-pill-time {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    /* Wallet Screen */
+    .wallet-hero {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(29, 35, 53, 0.8));
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 20px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .wallet-hero-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .wallet-hero-balance {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text-main);
+      margin: 6px 0 16px 0;
+    }
+    .wallet-hero-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .wallet-action-btn {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .wallet-action-btn.dep {
+      background: var(--teal-base);
+      color: #042F2E;
+    }
+    .wallet-action-btn.wdr {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+    }
+    .wallet-section-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 18px 0 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .wallet-request-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .req-left {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .req-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .req-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .req-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .req-amount {
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+    }
+    .status-pending { background: rgba(245, 158, 11, 0.2); color: #FBBF24; }
+    .status-approved, .status-paid { background: rgba(16, 185, 129, 0.2); color: #34D399; }
+    .status-rejected { background: rgba(239, 68, 68, 0.2); color: #F87171; }
+    .status-expired { background: rgba(107, 114, 128, 0.2); color: #9CA3AF; }
+
+    /* Reconnecting status toast */
+    .reconnect-toast {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #B91C1C;
+      color: #FFF;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
   </style>
 </head>
 <body>
@@ -1915,6 +2223,48 @@
       <!-- SCREEN 1: PLAY -->
       <section class="screen-view active" id="screenPlay" aria-label="Keno Play Screen">
         
+        <!-- Live Round Status Header -->
+        <div class="live-round-header" id="liveRoundHeader">
+          <div class="live-round-meta">
+            <span class="live-pulse-dot" id="livePulseDot"></span>
+            <span class="live-round-num" id="liveRoundNum">Round #—</span>
+            <span class="live-phase-badge phase-betting" id="livePhaseBadge">BETTING</span>
+          </div>
+          <div class="live-timer-box">
+            <span class="live-timer-label" id="liveTimerLabel">Betting closes</span>
+            <span class="live-countdown" id="liveCountdown">--:--</span>
+          </div>
+        </div>
+
+        <!-- Game Paused Alert Banner -->
+        <div class="game-paused-banner" id="gamePausedBanner" style="display:none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="10" y1="15" x2="10" y2="9"></line>
+            <line x1="14" y1="15" x2="14" y2="9"></line>
+          </svg>
+          <span>Game is temporarily paused by admin. New rounds will resume shortly.</span>
+        </div>
+
+        <!-- My Tickets in Active Round -->
+        <div class="my-ticket-card" id="myTicketCard" style="display:none;">
+          <div class="my-ticket-head">
+            <span class="my-ticket-title">🎟 Your Tickets (<span id="myTicketCount">0</span>/3)</span>
+            <span class="my-ticket-note">Confirmed • No cancel</span>
+          </div>
+          <div id="myTicketList"></div>
+        </div>
+
+        <!-- Recent Rounds Strip -->
+        <div class="recent-strip-container" id="recentStripContainer">
+          <div class="recent-strip-header">
+            <span class="recent-strip-title">Recent Rounds</span>
+          </div>
+          <div class="recent-strip" id="recentRoundsStrip">
+            <span style="font-size:11px;color:var(--text-muted);padding:4px 0;">Connecting to live rounds…</span>
+          </div>
+        </div>
+
         <!-- Payout Ladder Strip -->
         <div class="payout-strip" id="payoutStrip" aria-label="Payout multipliers">
           <div class="payout-meta">
@@ -2157,6 +2507,33 @@
         </div>
       </section>
 
+      <!-- SCREEN 5: WALLET -->
+      <section class="screen-view" id="screenWallet" aria-label="Wallet & Balances Screen">
+        <div class="wallet-hero">
+          <div class="wallet-hero-label">Available Balance</div>
+          <div class="wallet-hero-balance" id="walletScreenBalance">ETB 0.00</div>
+          <div class="wallet-hero-actions">
+            <button type="button" class="wallet-action-btn dep" id="walletScreenDepositBtn">＋ Deposit Funds</button>
+            <button type="button" class="wallet-action-btn wdr" id="walletScreenWithdrawBtn">💸 Withdraw</button>
+          </div>
+        </div>
+
+        <div class="wallet-section-title">
+          <span>Deposit Requests</span>
+          <button type="button" class="pill-btn" id="refreshWalletHistoryBtn" style="font-size:11px;padding:3px 8px;">Refresh</button>
+        </div>
+        <div id="depositRequestsList">
+          <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px;">Loading deposit requests…</p>
+        </div>
+
+        <div class="wallet-section-title">
+          <span>Withdrawal Requests</span>
+        </div>
+        <div id="withdrawalRequestsList">
+          <p style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px;">Loading withdrawal requests…</p>
+        </div>
+      </section>
+
     </main>
 
     <!-- Bottom Navigation Bar -->
@@ -2169,6 +2546,14 @@
           <rect x="3" y="14" width="7" height="7" rx="1"/>
         </svg>
         <span>Play</span>
+      </button>
+
+      <button type="button" class="nav-item" data-tab="screenWallet" role="tab" aria-selected="false" aria-controls="screenWallet">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+        <span>Wallet</span>
       </button>
 
       <button type="button" class="nav-item" data-tab="screenHistory" role="tab" aria-selected="false" aria-controls="screenHistory">
@@ -2205,7 +2590,7 @@
         <div class="result-badge" id="resultBadge">0 of 0 matched</div>
 
         <div class="sheet-btn-group">
-          <button type="button" class="btn-primary" id="playAgainBtn">Play Again (ETB <span id="playAgainBetText">10</span>)</button>
+          <button type="button" class="btn-primary" id="playAgainBtn">Play Again (ETB&nbsp;<span id="playAgainBetText">10</span>)</button>
           <button type="button" class="pill-btn" id="changeNumbersBtn" style="min-height: 48px; width: 100%; font-size: var(--text-sm);">
             Change Numbers
           </button>
@@ -2219,47 +2604,50 @@
     <div class="modal-overlay" id="depositModal" role="dialog" aria-modal="true" aria-label="Deposit">
       <div class="modal-sheet">
         <div class="modal-handle"></div>
-        <div class="modal-title">💳 Deposit Funds</div>
+        <div class="modal-title">💳 Submit Deposit Request</div>
 
-        <!-- TeleBirr -->
-        <div class="bank-card">
+        <!-- Method Selector -->
+        <div class="wdr-form-group">
+          <label class="wdr-label" for="depMethodSelect">Payment Method</label>
+          <select class="wdr-select" id="depMethodSelect" onchange="onDepositMethodChange()">
+            <option value="telebirr">TeleBirr (0982127526)</option>
+            <option value="cbe">CBE Bank Transfer (1000511782727)</option>
+          </select>
+        </div>
+
+        <!-- Bank Card Instructions -->
+        <div class="bank-card" id="depBankCard">
           <div class="bank-card-head">
-            <div class="bank-logo telebirr">T</div>
+            <div class="bank-logo telebirr" id="depBankLogo">T</div>
             <div>
-              <div class="bank-name">TeleBirr</div>
-              <div class="bank-sub">Send to this number</div>
+              <div class="bank-name" id="depBankName">TeleBirr</div>
+              <div class="bank-sub" id="depBankSub">Send your deposit to this account</div>
             </div>
           </div>
           <div class="bank-account-row">
-            <span class="bank-account-num" id="telebirrNum">0982127526</span>
-            <button class="copy-btn" onclick="copyAccount('telebirrNum')">Copy</button>
+            <span class="bank-account-num" id="depAccountNum">0982127526</span>
+            <button class="copy-btn" type="button" onclick="copyAccount('depAccountNum')">Copy</button>
           </div>
         </div>
 
-        <!-- CBE -->
-        <div class="bank-card">
-          <div class="bank-card-head">
-            <div class="bank-logo cbe">C</div>
-            <div>
-              <div class="bank-name">CBE (Commercial Bank of Ethiopia)</div>
-              <div class="bank-sub">Bank transfer</div>
-            </div>
-          </div>
-          <div class="bank-account-row">
-            <span class="bank-account-num" id="cbeNum">1000511782727</span>
-            <button class="copy-btn" onclick="copyAccount('cbeNum')">Copy</button>
-          </div>
+        <div class="wdr-form-group">
+          <label class="wdr-label" for="depAmount">Deposit Amount (ETB)</label>
+          <input class="wdr-input" type="number" id="depAmount" placeholder="e.g. 100" min="10" max="50000" step="1" inputmode="numeric" />
         </div>
 
-        <div class="dep-note">
-          <b>How to deposit:</b><br>
-          1. Send your amount via TeleBirr or CBE.<br>
-          2. Screenshot the transaction confirmation.<br>
-          3. Send the screenshot to <b>@mykenogamebot</b> on Telegram.<br>
-          4. Your balance will be credited within <b>30 minutes</b>.
+        <div class="wdr-form-group">
+          <label class="wdr-label" for="depTxRef">Transaction Reference (from SMS/Receipt)</label>
+          <input class="wdr-input" type="text" id="depTxRef" placeholder="e.g. 7X89AB1234 or confirmation code" spellcheck="false" />
         </div>
 
-        <button type="button" class="wdr-submit" style="margin-top:16px;" onclick="document.getElementById('depositModal').classList.remove('open')">Close</button>
+        <div class="wdr-form-group">
+          <label class="wdr-label" for="depProof">Optional Proof / Sender Name</label>
+          <input class="wdr-input" type="text" id="depProof" placeholder="Sender account name or notes" />
+        </div>
+
+        <button type="button" class="wdr-submit" id="depSubmitBtn" onclick="submitDepositRequest()">Submit Deposit Request</button>
+        <p class="wdr-note">Once submitted, your deposit will be verified and credited by admin within 30 minutes.</p>
+        <button type="button" class="wdr-submit" style="background:var(--bg-elevated);color:var(--text-main);border:1px solid var(--border-subtle);margin-top:8px;" onclick="document.getElementById('depositModal').classList.remove('open')">Cancel</button>
       </div>
     </div>
 
@@ -2936,6 +3324,8 @@
           }
         }
         requestAnimationFrame(animateNumber);
+        // Also sync wallet screen balance
+        updateWalletScreenBalance();
       }
 
       // --- Main Play Action ---
@@ -3147,7 +3537,8 @@
 
       playAgainBtn.addEventListener('click', () => {
         hideResultSheet();
-        handlePlay();
+        // In live-round mode the user places their next bet on the main board
+        // during the BETTING phase — do not auto-submit here.
       });
 
       changeNumbersBtn.addEventListener('click', () => {
@@ -3241,6 +3632,10 @@
 
           if (targetId === 'screenHistory') renderHistoryScreen();
           if (targetId === 'screenFairness') renderFairnessScreen();
+          if (targetId === 'screenWallet') {
+            updateWalletScreenBalance();
+            loadWalletHistory();
+          }
         });
       });
 
@@ -3482,7 +3877,465 @@
         connectToServer();
       });
 
-      // --- Authoritative Connection Sequence ---
+      // ─── Live Round State ───
+      const live = {
+        round: null,          // current round object
+        myTickets: [],        // tickets for current round
+        lastResults: [],      // last 10 settled rounds
+        paused: false,
+        serverTimeOffset: 0,  // ms offset: serverTime - Date.now()
+        countdownTimer: null,
+        sseSource: null,
+        reconnectTimer: null,
+        reconnecting: false,
+      };
+
+      function serverNow() { return Date.now() + live.serverTimeOffset; }
+
+      // ── Live Round Header UI ──
+      function updateLiveHeader(snapshot) {
+        const r = snapshot.round;
+        const paused = snapshot.paused;
+
+        // Update offset
+        if (snapshot.serverTime) {
+          live.serverTimeOffset = snapshot.serverTime - Date.now();
+        }
+
+        // Paused banner
+        const pausedBanner = document.getElementById('gamePausedBanner');
+        if (pausedBanner) pausedBanner.style.display = paused ? 'flex' : 'none';
+
+        const roundNumEl = document.getElementById('liveRoundNum');
+        const phaseBadge = document.getElementById('livePhaseBadge');
+        const timerLabel = document.getElementById('liveTimerLabel');
+        const countdownEl = document.getElementById('liveCountdown');
+        const pulseDot = document.getElementById('livePulseDot');
+
+        if (!r) {
+          if (roundNumEl) roundNumEl.textContent = 'Round #—';
+          if (phaseBadge) { phaseBadge.textContent = paused ? 'PAUSED' : 'LOADING'; phaseBadge.className = 'live-phase-badge phase-locked'; }
+          return;
+        }
+
+        if (roundNumEl) roundNumEl.textContent = `Round #${r.roundNumber}`;
+
+        const phaseMap = {
+          betting:  { label: 'BETTING',  cls: 'phase-betting',  timerLabel: 'Betting closes',    end: r.bettingClosesAt },
+          locked:   { label: 'LOCKED',   cls: 'phase-locked',   timerLabel: 'Drawing starts',    end: r.drawStartsAt },
+          drawing:  { label: 'DRAWING',  cls: 'phase-drawing',  timerLabel: 'Results in',        end: r.resultStartsAt },
+          result:   { label: 'RESULTS',  cls: 'phase-result',   timerLabel: 'Next round in',     end: null },
+          settled:  { label: 'SETTLED',  cls: 'phase-result',   timerLabel: '',                  end: null },
+        };
+        const phase = phaseMap[r.status] || { label: r.status.toUpperCase(), cls: 'phase-locked', timerLabel: '', end: null };
+
+        if (phaseBadge) { phaseBadge.textContent = phase.label; phaseBadge.className = `live-phase-badge ${phase.cls}`; }
+        if (timerLabel) timerLabel.textContent = phase.timerLabel;
+
+        // Update board lock/unlock based on phase
+        const isBetting = r.status === 'betting' && !paused;
+        setBoardDisabled(!isBetting || state.isPlaying);
+        syncPlayButton();
+
+        // Start/restart countdown
+        if (live.countdownTimer) clearInterval(live.countdownTimer);
+        if (phase.end && countdownEl) {
+          const tick = () => {
+            const msLeft = new Date(phase.end).getTime() - serverNow();
+            if (msLeft <= 0) { countdownEl.textContent = '00:00'; return; }
+            const s = Math.floor(msLeft / 1000);
+            countdownEl.textContent = `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+          };
+          tick();
+          live.countdownTimer = setInterval(tick, 500);
+        } else if (countdownEl) {
+          countdownEl.textContent = '--:--';
+        }
+      }
+
+      // ── My Tickets for Current Round ──
+      function updateMyTicketCard(tickets) {
+        const card = document.getElementById('myTicketCard');
+        const list = document.getElementById('myTicketList');
+        const countEl = document.getElementById('myTicketCount');
+        if (!card || !list) return;
+
+        live.myTickets = tickets || [];
+        if (live.myTickets.length === 0) {
+          card.style.display = 'none';
+          return;
+        }
+        card.style.display = 'block';
+        if (countEl) countEl.textContent = live.myTickets.length;
+
+        list.innerHTML = live.myTickets.map(t => {
+          const picks = Array.isArray(t.picks) ? t.picks.sort((a,b)=>a-b).join(', ') : '—';
+          const bet = typeof t.bet === 'number' ? currencyFmt.format(t.bet) : '—';
+          const statusColors = { open: '#9CA3AF', won: '#34D399', lost: '#F87171', void: '#FBBF24', refunded: '#FBBF24' };
+          const color = statusColors[t.status] || '#9CA3AF';
+          return `<div class="ticket-item">
+            <span class="ticket-picks">🎯 ${picks}</span>
+            <span class="ticket-bet" style="color:${color}">${bet} • ${t.status.toUpperCase()}</span>
+          </div>`;
+        }).join('');
+      }
+
+      // ── Recent Rounds Strip ──
+      function updateRecentStrip(lastResults) {
+        live.lastResults = lastResults || [];
+        const strip = document.getElementById('recentRoundsStrip');
+        if (!strip) return;
+        if (live.lastResults.length === 0) {
+          strip.innerHTML = '<span style="font-size:11px;color:var(--text-muted);padding:4px 0;">No completed rounds yet.</span>';
+          return;
+        }
+        strip.innerHTML = live.lastResults.map(r => {
+          const timeStr = r.settledAt ? new Date(r.settledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+          return `<div class="recent-round-pill" title="Round #${r.roundNumber}: ${(r.drawn || []).join(', ')}">
+            <span class="recent-pill-num">#${r.roundNumber}</span>
+            <span class="recent-pill-time">${timeStr}</span>
+          </div>`;
+        }).join('');
+      }
+
+      // ── Reconnecting Toast ──
+      let reconnectToastEl = null;
+      function showReconnectingToast(visible) {
+        if (!reconnectToastEl) {
+          reconnectToastEl = document.createElement('div');
+          reconnectToastEl.className = 'reconnect-toast';
+          reconnectToastEl.textContent = '⚡ Reconnecting…';
+          document.body.appendChild(reconnectToastEl);
+        }
+        reconnectToastEl.style.display = visible ? 'block' : 'none';
+        // Disable betting when reconnecting
+        if (visible) {
+          setBoardDisabled(true);
+          syncPlayButton();
+        }
+      }
+
+      // ── Draw balls from SSE events ──
+      function applyLiveBall(ballIndex, num) {
+        const trayBall = document.createElement('div');
+        const isHit = state.picks.has(num);
+        trayBall.className = `tray-ball ${isHit ? 'is-hit' : ''}`;
+        trayBall.textContent = num;
+        ballTrayRow.appendChild(trayBall);
+        trayCount.textContent = ballIndex + 1;
+
+        const tile = document.getElementById(`tile_${num}`);
+        if (tile) {
+          tile.classList.remove('drawn', 'hit');
+          tile.classList.add(isHit ? 'hit' : 'drawn');
+        }
+
+        if (isHit) { playHitChime(live.myTickets.length); triggerHaptic('success'); }
+        else { playTickSound(); triggerHaptic('light'); }
+      }
+
+      function applyDrawnSoFar(drawn) {
+        ballTrayRow.innerHTML = '';
+        trayCount.textContent = '0';
+        document.querySelectorAll('.num-tile').forEach(t => t.classList.remove('drawn', 'hit'));
+        (drawn || []).forEach((num, i) => applyLiveBall(i, num));
+      }
+
+      // ── SSE Connection ──
+      function connectSSE() {
+        if (live.sseSource) { live.sseSource.close(); live.sseSource = null; }
+        const headers = window.Telegram?.WebApp?.initData;
+        // SSE with initData as query param (GET only, no custom headers)
+        const url = '/api/live' + (headers ? `?initData=${encodeURIComponent(headers)}` : '');
+        const es = new EventSource(url);
+        live.sseSource = es;
+
+        es.addEventListener('snapshot', (e) => {
+          try {
+            const snap = JSON.parse(e.data);
+            handleSnapshot(snap);
+            showReconnectingToast(false);
+            live.reconnecting = false;
+          } catch(err) { console.warn('[SSE snapshot parse]', err); }
+        });
+
+        es.addEventListener('round:new', (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            live.round = data.round;
+            if (data.serverTime) live.serverTimeOffset = data.serverTime - Date.now();
+            updateLiveHeader({ round: live.round, paused: live.paused, serverTime: data.serverTime });
+            // Clear board for new round
+            ballTrayRow.innerHTML = '';
+            trayCount.textContent = '0';
+            document.querySelectorAll('.num-tile').forEach(t => t.classList.remove('drawn', 'hit'));
+            live.myTickets = [];
+            updateMyTicketCard([]);
+            showToast(`🎲 Round #${data.round?.roundNumber} betting open — place your bet!`);
+          } catch(err) { console.warn('[SSE round:new parse]', err); }
+        });
+
+        es.addEventListener('round:phase', (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (live.round && String(live.round.id) === String(data.id)) {
+              live.round.status = data.status;
+            }
+            if (data.serverTime) live.serverTimeOffset = data.serverTime - Date.now();
+            updateLiveHeader({ round: live.round, paused: live.paused, serverTime: data.serverTime });
+          } catch(err) { console.warn('[SSE round:phase parse]', err); }
+        });
+
+        es.addEventListener('round:ball', (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (live.round && Number(live.round.roundNumber) === Number(data.roundNumber)) {
+              applyLiveBall(data.index, data.num);
+            }
+          } catch(err) { console.warn('[SSE round:ball parse]', err); }
+        });
+
+        es.addEventListener('round:result', (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            // Refresh balance and tickets via poll
+            refreshLiveSnapshot();
+          } catch(err) { console.warn('[SSE round:result parse]', err); }
+        });
+
+        es.addEventListener('round:paused', () => {
+          live.paused = true;
+          updateLiveHeader({ round: live.round, paused: true });
+          showToast('⚠️ Game is paused by admin. Betting disabled.');
+          setBoardDisabled(true);
+          syncPlayButton();
+        });
+
+        es.onerror = () => {
+          showReconnectingToast(true);
+          live.reconnecting = true;
+          es.close();
+          live.sseSource = null;
+          // Retry after 4s
+          if (live.reconnectTimer) clearTimeout(live.reconnectTimer);
+          live.reconnectTimer = setTimeout(() => {
+            if (state.isConnected) connectSSE();
+          }, 4000);
+        };
+      }
+
+      async function refreshLiveSnapshot() {
+        try {
+          const snap = await apiRequest('/api/live?poll=1');
+          handleSnapshot(snap);
+        } catch(e) { /* silent */ }
+      }
+
+      function handleSnapshot(snap) {
+        if (!snap) return;
+        live.round = snap.round || null;
+        live.paused = snap.paused || false;
+        live.myTickets = snap.myTickets || [];
+        live.lastResults = snap.lastResults || [];
+
+        if (typeof snap.balance === 'number') {
+          state.balance = snap.balance;
+          updateBalanceDisplay(snap.balance);
+        }
+        if (snap.serverTime) live.serverTimeOffset = snap.serverTime - Date.now();
+
+        updateLiveHeader(snap);
+        updateMyTicketCard(live.myTickets);
+        updateRecentStrip(live.lastResults);
+
+        // If in drawing phase, fill balls so far
+        if (live.round && live.round.status === 'drawing' && live.round.drawnSoFar) {
+          applyDrawnSoFar(live.round.drawnSoFar);
+        } else if (live.round && (live.round.status === 'result' || live.round.status === 'settled') && live.round.drawn) {
+          applyDrawnSoFar(live.round.drawn);
+        }
+      }
+
+      // ── Play Button: now places a live-round ticket ──
+      function syncPlayButton() {
+        const r = live.round;
+        const isBetting = r && r.status === 'betting' && !live.paused;
+        const canPlay = state.isConnected && isBetting && !state.isPlaying && state.picks.size >= 1 && state.balance >= state.minBet && state.balance >= state.bet;
+
+        playBtn.disabled = !canPlay;
+
+        let label;
+        if (!state.isConnected) {
+          label = 'CONNECTING…';
+        } else if (!r || live.paused) {
+          label = live.paused ? 'GAME PAUSED' : 'WAITING…';
+        } else if (r.status === 'betting') {
+          if (live.myTickets.length >= 3) label = 'MAX TICKETS (3/3)';
+          else if (state.picks.size < 1) label = 'PICK NUMBERS';
+          else if (state.isPlaying) label = 'PLACING BET…';
+          else label = `PLACE BET — ROUND #${r.roundNumber}`;
+        } else if (r.status === 'locked') {
+          label = '🔒 BETTING CLOSED';
+        } else if (r.status === 'drawing') {
+          label = '🎲 DRAWING BALLS…';
+        } else if (r.status === 'result') {
+          label = '📋 RESULTS…';
+        } else {
+          label = 'WAIT FOR NEXT ROUND';
+        }
+
+        playBtn.querySelector('span').textContent = label;
+      }
+
+      // ── Override handlePlay to use live tickets API ──
+      async function handlePlay() {
+        const r = live.round;
+        if (!state.isConnected || state.isPlaying) return;
+        if (!r || r.status !== 'betting' || live.paused) {
+          showToast('Betting is not currently open. Please wait for the next round.'); return;
+        }
+        if (live.myTickets.length >= 3) { showToast('Maximum 3 tickets per round reached.'); return; }
+        if (state.picks.size < 1) { showToast('Pick at least 1 number.'); return; }
+        if (state.balance < state.minBet) { showToast('Balance too low to place bet.'); triggerHaptic('error'); return; }
+        if (state.balance < state.bet) { showToast('Insufficient balance for this bet.'); triggerHaptic('error'); return; }
+
+        const sortedPicks = Array.from(state.picks).sort((a, b) => a - b);
+        const iKey = generateIdempotencyKey();
+        state.isPlaying = true;
+        setBoardDisabled(true);
+        syncPlayButton();
+        triggerHaptic('medium');
+
+        try {
+          const ticket = await apiRequest('/api/tickets', 'POST', {
+            roundId: r.id,
+            picks: sortedPicks,
+            bet: state.bet,   // send in ETB — server converts to cents internally
+          }, iKey);
+
+          state.isPlaying = false;
+          // Refresh balance + my tickets from live snapshot
+          await refreshLiveSnapshot();
+          triggerHaptic('success');
+          showToast(`✅ Ticket placed for Round #${r.roundNumber}! Picks: ${sortedPicks.join(', ')}`);
+        } catch (err) {
+          state.isPlaying = false;
+          setBoardDisabled(false);
+          syncPlayButton();
+          triggerHaptic('error');
+          showToast(`Bet failed: ${err.message}`, null);
+        }
+      }
+
+      // ── Wallet Screen ──
+      function updateWalletScreenBalance() {
+        const el = document.getElementById('walletScreenBalance');
+        if (el) el.textContent = currencyFmt.format(state.balance);
+      }
+
+      async function loadWalletHistory() {
+        const depList = document.getElementById('depositRequestsList');
+        const wdrList = document.getElementById('withdrawalRequestsList');
+        try {
+          const history = await apiRequest('/api/wallet/history');
+          const deps = history.deposits || [];
+          const wdrs = history.withdrawals || [];
+
+          if (depList) {
+            if (deps.length === 0) {
+              depList.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px;">No deposit requests yet.</p>';
+            } else {
+              depList.innerHTML = deps.map(d => `
+                <div class="wallet-request-item">
+                  <div class="req-left">
+                    <span class="req-title">${(d.method || 'Deposit').toUpperCase()}</span>
+                    <span class="req-sub">Ref: ${d.reference_code || d.referenceCode || '—'} • ${d.created_at ? new Date(d.created_at).toLocaleDateString() : ''}</span>
+                  </div>
+                  <div class="req-right">
+                    <span class="req-amount" style="color:var(--teal-glow);">+${currencyFmt.format((d.amount_cents || d.amountCents || 0) / 100)}</span>
+                    <span class="status-badge status-${(d.status || 'pending').toLowerCase()}">${(d.status || 'pending').toUpperCase()}</span>
+                  </div>
+                </div>`).join('');
+            }
+          }
+
+          if (wdrList) {
+            if (wdrs.length === 0) {
+              wdrList.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px;">No withdrawal requests yet.</p>';
+            } else {
+              wdrList.innerHTML = wdrs.map(w => `
+                <div class="wallet-request-item">
+                  <div class="req-left">
+                    <span class="req-title">${(w.account_method || w.accountMethod || 'Withdrawal').toUpperCase()}</span>
+                    <span class="req-sub">${w.account_number || w.accountNumber || ''} • ${w.created_at ? new Date(w.created_at).toLocaleDateString() : ''}</span>
+                  </div>
+                  <div class="req-right">
+                    <span class="req-amount" style="color:var(--gold-glow);">-${currencyFmt.format((w.amount_cents || w.amountCents || 0) / 100)}</span>
+                    <span class="status-badge status-${(w.status || 'pending').toLowerCase()}">${(w.status || 'pending').toUpperCase()}</span>
+                  </div>
+                </div>`).join('');
+            }
+          }
+        } catch(e) {
+          if (depList) depList.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px;">Could not load history.</p>';
+          if (wdrList) wdrList.innerHTML = '';
+        }
+      }
+
+      // ── Deposit Form ──
+      window.onDepositMethodChange = function() {
+        const method = document.getElementById('depMethodSelect')?.value;
+        const logoEl = document.getElementById('depBankLogo');
+        const nameEl = document.getElementById('depBankName');
+        const subEl = document.getElementById('depBankSub');
+        const accEl = document.getElementById('depAccountNum');
+        if (method === 'cbe') {
+          if (logoEl) { logoEl.textContent = 'C'; logoEl.className = 'bank-logo cbe'; }
+          if (nameEl) nameEl.textContent = 'CBE (Commercial Bank of Ethiopia)';
+          if (subEl) subEl.textContent = 'Bank transfer to this account';
+          if (accEl) accEl.textContent = '1000511782727';
+        } else {
+          if (logoEl) { logoEl.textContent = 'T'; logoEl.className = 'bank-logo telebirr'; }
+          if (nameEl) nameEl.textContent = 'TeleBirr';
+          if (subEl) subEl.textContent = 'Send your deposit to this number';
+          if (accEl) accEl.textContent = '0982127526';
+        }
+      };
+
+      window.submitDepositRequest = async function() {
+        const method = document.getElementById('depMethodSelect')?.value;
+        const amount = parseFloat(document.getElementById('depAmount')?.value);
+        const txRef = document.getElementById('depTxRef')?.value.trim();
+        const proof = document.getElementById('depProof')?.value.trim();
+
+        if (!amount || amount < 10) { showToast('Minimum deposit is ETB 10.'); return; }
+        if (!txRef) { showToast('Please enter your transaction reference.'); return; }
+
+        const btn = document.getElementById('depSubmitBtn');
+        btn.disabled = true; btn.textContent = 'Submitting…';
+        try {
+          await apiRequest('/api/deposit/request', 'POST', {
+            amount: Math.round(amount * 100),
+            method: method || 'telebirr',
+            txReference: txRef,
+            proofText: proof || '',
+          });
+          document.getElementById('depositModal').classList.remove('open');
+          showToast('✅ Deposit request submitted! Admin will credit your balance within 30 minutes.');
+          // Clear fields
+          document.getElementById('depAmount').value = '';
+          document.getElementById('depTxRef').value = '';
+          document.getElementById('depProof').value = '';
+          // Refresh wallet history if on wallet tab
+          loadWalletHistory();
+        } catch(err) {
+          showToast(`Deposit request failed: ${err.message}`);
+        } finally {
+          btn.disabled = false; btn.textContent = 'Submit Deposit Request';
+        }
+      };
+
+      // ── Authoritative Connection Sequence ──
       async function connectToServer() {
         setBoardDisabled(true);
         playBtn.disabled = true;
@@ -3517,8 +4370,13 @@
           updateBalanceDisplay(state.balance);
           syncBetChips();
           setBet(Math.min(10, state.maxBet));
-          setBoardDisabled(false);
-          syncPlayButton();
+          renderPayoutLadder();
+
+          // Connect SSE for live rounds
+          connectSSE();
+
+          // Also do an immediate poll snapshot so header shows up fast
+          await refreshLiveSnapshot();
         } catch (err) {
           clearTimeout(slowTimer);
           state.isConnected = false;
@@ -3535,7 +4393,7 @@
             state.history = pastHistory;
           }
         } catch (e) {
-          // Non-fatal if history fetch fails on initial connect
+          // Non-fatal
         }
       }
 
@@ -3625,6 +4483,7 @@
           const wdrModal = document.getElementById('withdrawModal');
           const rulesModal = document.getElementById('rulesModal');
 
+          // Top-bar deposit/withdraw buttons → open modals
           if (depBtn && depModal) {
             depBtn.addEventListener('click', () => depModal.classList.add('open'));
             depModal.addEventListener('click', function(e) {
@@ -3637,6 +4496,16 @@
               if (e.target === this) this.classList.remove('open');
             });
           }
+
+          // Wallet screen buttons → open same modals
+          const wsdepBtn = document.getElementById('walletScreenDepositBtn');
+          const wswdrBtn = document.getElementById('walletScreenWithdrawBtn');
+          if (wsdepBtn && depModal) wsdepBtn.addEventListener('click', () => depModal.classList.add('open'));
+          if (wswdrBtn && wdrModal) wswdrBtn.addEventListener('click', () => wdrModal.classList.add('open'));
+
+          // Wallet history refresh
+          const refreshBtn = document.getElementById('refreshWalletHistoryBtn');
+          if (refreshBtn) refreshBtn.addEventListener('click', loadWalletHistory);
 
           // Rules modal trigger buttons
           document.querySelectorAll('.rules-help-trigger').forEach(btn => {
