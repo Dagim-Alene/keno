@@ -29,7 +29,7 @@ router.get('/state', async (req, res) => {
     try {
       await client.query('BEGIN');
       await ensureUser(client, userId, req.telegramUsername);
-      await _getOrCreateWallet(client, userId, 'USD');
+      await _getOrCreateWallet(client, userId, 'ETB');
       await client.query('COMMIT');
     } catch (e) {
       await client.query('ROLLBACK');
@@ -40,7 +40,7 @@ router.get('/state', async (req, res) => {
 
     // Fetch balance
     const { rows: balRows } = await pool.query(
-      `SELECT balance FROM wallets WHERE user_id = $1 AND currency = 'USD'`,
+      `SELECT balance FROM wallets WHERE user_id = $1 AND currency = 'ETB'`,
       [String(userId)]
     );
     const balanceCents = balRows.length ? Number(balRows[0].balance) : 0;

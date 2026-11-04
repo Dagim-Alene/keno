@@ -4059,6 +4059,11 @@
           } catch(err) { console.warn('[SSE snapshot parse]', err); }
         });
 
+        es.onopen = () => {
+          showReconnectingToast(false);
+          live.reconnecting = false;
+        };
+
         es.addEventListener('round:new', (e) => {
           try {
             const data = JSON.parse(e.data);
@@ -4116,6 +4121,8 @@
           live.reconnecting = true;
           es.close();
           live.sseSource = null;
+          // Fallback: poll while disconnected
+          refreshLiveSnapshot();
           // Retry after 4s
           if (live.reconnectTimer) clearTimeout(live.reconnectTimer);
           live.reconnectTimer = setTimeout(() => {
@@ -4128,6 +4135,11 @@
         try {
           const snap = await apiRequest('/api/live?poll=1');
           handleSnapshot(snap);
+          // If we successfully received a snapshot via polling, hide reconnecting toast
+          if (snap) {
+            showReconnectingToast(false);
+            live.reconnecting = false;
+          }
         } catch(e) { /* silent */ }
       }
 

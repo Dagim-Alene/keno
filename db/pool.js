@@ -34,7 +34,12 @@ function getPool() {
 //   require('../db/pool').pool = myInMemoryPool;
 // Because module.exports is an object, mutating its properties works.
 const exports_ = {
-  get pool() { return _pool || getPool(); },
+  get pool() {
+    if (_pool && (_pool.ending || _pool.ended)) {
+      _pool = null;
+    }
+    return _pool || getPool();
+  },
   set pool(p) { _pool = p; },
 
   get withTransaction() {

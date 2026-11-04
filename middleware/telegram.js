@@ -70,7 +70,7 @@ function telegramAuth(req, res, next) {
     return next();
   }
 
-  const initData = req.headers['x-telegram-init-data'] || req.body?.initData;
+  const initData = req.headers['x-telegram-init-data'] || req.body?.initData || req.query?.initData;
 
   if (IS_DEV && !initData) {
     // Development fallback: accept a plain user-id header, or default to local dev user
