@@ -30,6 +30,7 @@ class RoundScheduler {
     this.currentRound = null;
     this.timer = null;
     this.ballInterval = null;
+    this.standbyTimer = null;
     this.client = null; // dedicated client for advisory lock
     this.onPhaseChange = options.onPhaseChange || null;
   }
@@ -99,6 +100,17 @@ class RoundScheduler {
 
     const now = this.getNow();
     const resultStarts = new Date(latest.result_starts_at).getTime();
+    const bettingCloses = new Date(latest.betting_closes_at).getTime();
+
+    // If the round is still actively in its betting window, resume it
+    if (latest.status === 'betting' && now < bettingCloses) {
+      this.currentRound = {
+        ...latest,
+        serverSeed: latest.server_seed,
+        drawn: latest.drawn,
+      };
+      return latest;
+    }
 
     // If the round died during drawing or result, or after result_starts_at
     if (now >= resultStarts || latest.status === 'drawing' || latest.status === 'result') {
@@ -108,11 +120,6 @@ class RoundScheduler {
         let drawn = latest.drawn;
         let serverSeed = latest.server_seed;
         if (!drawn || !serverSeed) {
-          // Check if server seed was stored or we need to generate/find
-          // Note: we can generate drawn from serverSeed, but if serverSeed wasn't saved,
-          // we check if server_seed was stored or if we need to void.
-          // In standard flow, server_seed is held in memory until settled, but server_seed_hash is in DB.
-          // For safe recovery: if server_seed is in DB or can be retrieved, settle; otherwise void & refund.
           if (!serverSeed) {
             console.warn(`[scheduler] Round #${latest.round_number} missing server_seed on crash. Voiding & refunding.`);
             await voidRound(latest.id);
@@ -124,7 +131,16 @@ class RoundScheduler {
         console.error(`[scheduler] Recovery error on round #${latest.round_number}:`, err);
         await voidRound(latest.id);
       }
+      return latest;
     }
+
+    // If the round expired while the server was offline during betting or locked phase
+    if (now >= bettingCloses && (latest.status === 'betting' || latest.status === 'locked')) {
+      console.log(`[scheduler] Round #${latest.round_number} expired while server was offline (status: ${latest.status}). Voiding & refunding.`);
+      await voidRound(latest.id);
+      return latest;
+    }
+
     return latest;
   }
 
@@ -174,20 +190,30 @@ class RoundScheduler {
 
   formatRoundForPublic(r) {
     if (!r) return null;
+    const roundNumber = r.roundNumber !== undefined ? Number(r.roundNumber) : Number(r.round_number);
+    const serverSeedHash = r.serverSeedHash || r.server_seed_hash;
+    const prevRoundHash = r.prevRoundHash || r.prev_round_hash || null;
+    const serverSeed = (r.status === 'settled') ? (r.serverSeed || r.server_seed) : null;
+    const drawn = (r.status === 'drawing' || r.status === 'result' || r.status === 'settled') ? r.drawn : null;
+    const bettingOpensAt = r.bettingOpensAt || (r.betting_opens_at ? new Date(r.betting_opens_at).toISOString() : null);
+    const bettingClosesAt = r.bettingClosesAt || (r.betting_closes_at ? new Date(r.betting_closes_at).toISOString() : null);
+    const drawStartsAt = r.drawStartsAt || (r.draw_starts_at ? new Date(r.draw_starts_at).toISOString() : null);
+    const resultStartsAt = r.resultStartsAt || (r.result_starts_at ? new Date(r.result_starts_at).toISOString() : null);
+    const settledAt = r.settledAt || (r.settled_at ? new Date(r.settled_at).toISOString() : null);
+
     return {
       id: String(r.id),
-      roundNumber: Number(r.round_number),
+      roundNumber,
       status: r.status,
-      serverSeedHash: r.server_seed_hash,
-      prevRoundHash: r.prev_round_hash || null,
-      serverSeed: (r.status === 'settled') ? r.server_seed : null,
-      // reveal drawn array only during drawing/result/settled
-      drawn: (r.status === 'drawing' || r.status === 'result' || r.status === 'settled') ? r.drawn : null,
-      bettingOpensAt: r.betting_opens_at ? new Date(r.betting_opens_at).toISOString() : null,
-      bettingClosesAt: r.betting_closes_at ? new Date(r.betting_closes_at).toISOString() : null,
-      drawStartsAt: r.draw_starts_at ? new Date(r.draw_starts_at).toISOString() : null,
-      resultStartsAt: r.result_starts_at ? new Date(r.result_starts_at).toISOString() : null,
-      settledAt: r.settled_at ? new Date(r.settled_at).toISOString() : null,
+      serverSeedHash,
+      prevRoundHash,
+      serverSeed,
+      drawn,
+      bettingOpensAt,
+      bettingClosesAt,
+      drawStartsAt,
+      resultStartsAt,
+      settledAt,
     };
   }
 
@@ -333,11 +359,39 @@ class RoundScheduler {
   async start() {
     if (this.isRunning) return;
     this.isRunning = true;
+    await this.tryAcquireAndRun();
+  }
+
+  async tryAcquireAndRun() {
+    if (!this.isRunning) return;
+    if (this.hasLock) return;
 
     const locked = await this.acquireLock();
     if (!locked) {
       console.log('[scheduler] Advisory lock already held by another instance. Standing by as passive replica.');
+      if (!this.standbyTimer) {
+        this.standbyTimer = setInterval(async () => {
+          if (!this.isRunning) {
+            clearInterval(this.standbyTimer);
+            this.standbyTimer = null;
+            return;
+          }
+          if (await this.acquireLock()) {
+            clearInterval(this.standbyTimer);
+            this.standbyTimer = null;
+            console.log('[scheduler] Advisory lock acquired (42424242). Active scheduler started.');
+            await this.recoverOnBoot();
+            await this.runCycle();
+          }
+        }, 2000);
+        if (this.standbyTimer.unref) this.standbyTimer.unref();
+      }
       return;
+    }
+
+    if (this.standbyTimer) {
+      clearInterval(this.standbyTimer);
+      this.standbyTimer = null;
     }
     console.log('[scheduler] Advisory lock acquired (42424242). Active scheduler started.');
 
@@ -347,6 +401,10 @@ class RoundScheduler {
 
   async stop() {
     this.isRunning = false;
+    if (this.standbyTimer) {
+      clearInterval(this.standbyTimer);
+      this.standbyTimer = null;
+    }
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;

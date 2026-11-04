@@ -22,7 +22,17 @@ async function buildSnapshot(userId) {
   const now = scheduler.getNow();
 
   // 1. Current round details
-  const currentRound = schedStatus.currentRound;
+  let currentRound = schedStatus.currentRound;
+  if (!currentRound) {
+    const { rows: activeRows } = await pool.query(
+      `SELECT * FROM live_rounds
+       WHERE status IN ('betting', 'locked', 'drawing', 'result')
+       ORDER BY round_number DESC LIMIT 1`
+    );
+    if (activeRows.length > 0) {
+      currentRound = scheduler.formatRoundForPublic(activeRows[0]);
+    }
+  }
 
   // 2. My tickets for the current round
   let myTickets = [];

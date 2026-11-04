@@ -3915,6 +3915,8 @@
         if (!r) {
           if (roundNumEl) roundNumEl.textContent = 'Round #—';
           if (phaseBadge) { phaseBadge.textContent = paused ? 'PAUSED' : 'LOADING'; phaseBadge.className = 'live-phase-badge phase-locked'; }
+          // If no active round yet, retry snapshot poll in 2 seconds
+          setTimeout(() => refreshLiveSnapshot(), 2000);
           return;
         }
 

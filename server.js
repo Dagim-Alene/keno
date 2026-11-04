@@ -142,7 +142,7 @@ app.use((err, req, res, _next) => {
 // Start Server & Live Round Scheduler
 // ---------------------------------------------------------------------------
 if (require.main === module) {
-  app.listen(PORT, '0.0.0.0', async () => {
+  const server = app.listen(PORT, '0.0.0.0', async () => {
     logger.info(`Keno mini app running at http://0.0.0.0:${PORT}`, { port: PORT, env: process.env.NODE_ENV });
     try {
       const scheduler = getScheduler();
@@ -151,6 +151,20 @@ if (require.main === module) {
       logger.error('Failed to start live round scheduler', { error: schedErr.message });
     }
   });
+
+  const shutdown = async (signal) => {
+    logger.info(`Received ${signal}. Shutting down gracefully...`);
+    try {
+      const scheduler = getScheduler();
+      await scheduler.stop();
+    } catch (_) {}
+    server.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 module.exports = app;
