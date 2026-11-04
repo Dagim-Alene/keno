@@ -56,7 +56,6 @@ router.post('/', ticketUserLimiter, ticketIpLimiter, async (req, res) => {
   }
 
   const { picks, bet, roundId } = req.body;
-  const numBet = Number(bet);
 
   // Validate picks
   if (!Array.isArray(picks) || picks.length < 1 || picks.length > 10) {
