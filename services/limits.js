@@ -13,9 +13,12 @@ const { pool } = require('../db/pool');
 // ---------------------------------------------------------------------------
 const MAX_BET_CENTS              = BigInt(process.env.MAX_BET_CENTS || 10_000);
 // DEFAULT_DAILY_LOSS_LIMIT_CENTS: 0 or unset means NO limit by default.
-// Supports backward compatibility with DAILY_LOSS_LIMIT_CENTS if explicitly set.
-const rawDailyLossLimitEnv = process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS ?? process.env.DAILY_LOSS_LIMIT_CENTS;
-const DEFAULT_DAILY_LOSS_LIMIT   = BigInt(rawDailyLossLimitEnv ? Number(rawDailyLossLimitEnv) : 0);
+function getDefaultDailyLossLimit() {
+  const val = process.env.DEFAULT_DAILY_LOSS_LIMIT_CENTS;
+  if (!val) return 0n;
+  const num = Number(val);
+  return (isFinite(num) && num > 0) ? BigInt(num) : 0n;
+}
 const MIN_AGE_YEARS              = Number(process.env.MIN_AGE_YEARS || 18);
 const BLOCKED_COUNTRIES          = (process.env.BLOCKED_COUNTRIES || '')
   .split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
@@ -129,8 +132,9 @@ async function checkDailyLossLimit(userId) {
 
   // Determine effective limit:
   // User's custom limit takes precedence if set.
-  // Otherwise, default from env applies (0 means NO limit).
-  const effectiveLimit = userLimit !== null ? userLimit : DEFAULT_DAILY_LOSS_LIMIT;
+  // Otherwise, default from env applies (0 or unset means NO limit).
+  const defaultLimit = getDefaultDailyLossLimit();
+  const effectiveLimit = userLimit !== null ? userLimit : defaultLimit;
 
   // If effective limit is 0 or negative, daily loss limit is disabled
   if (effectiveLimit <= 0n) {
@@ -154,7 +158,7 @@ async function checkDailyLossLimit(userId) {
   if (dailyLoss >= effectiveLimit) {
     throw limitError(
       'DAILY_LOSS_LIMIT',
-      `You have reached your daily loss limit of $${(Number(effectiveLimit) / 100).toFixed(2)}.`
+      `You have reached your daily loss limit of ${(Number(effectiveLimit) / 100).toFixed(2)} ETB.`
     );
   }
 }
