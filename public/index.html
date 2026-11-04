@@ -480,6 +480,211 @@
     .wdr-submit:disabled { opacity: 0.5; cursor: not-allowed; }
     .wdr-note { font-size: var(--text-xs); color: var(--text-muted); text-align:center; margin-top: 10px; line-height:1.5; }
 
+    /* ── Rules & Paytable Modal Styles ── */
+    .rules-modal-sheet {
+      max-height: 85vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .rules-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .rules-close-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+    }
+    .rules-close-btn:hover { color: var(--text-main); }
+    .rules-subtitle {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .rules-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .rules-spot-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+      margin-bottom: 12px;
+    }
+    .rules-spot-tabs::-webkit-scrollbar { display: none; }
+    .rules-spot-tab {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .rules-spot-tab.active {
+      background: var(--teal-bg);
+      border-color: var(--teal-base);
+      color: var(--teal-glow);
+      box-shadow: 0 0 10px rgba(20, 184, 166, 0.25);
+    }
+    .rules-pick-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .rules-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .rules-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .rules-table td {
+      padding: 7px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text-main);
+    }
+    .rules-table tr:last-child td { border-bottom: none; }
+    .rules-mult-val {
+      font-weight: 800;
+      color: var(--gold-glow);
+    }
+    .rules-prob-val {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+    .rules-callout {
+      background: rgba(20, 184, 166, 0.08);
+      border: 1px solid rgba(20, 184, 166, 0.25);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+    .rules-callout-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--teal-glow);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rules-callout p {
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    .rules-callout b { color: var(--text-main); }
+    .rules-steps {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+    .rules-step-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+    .rules-step-item:last-child { margin-bottom: 0; }
+    .rules-step-item b { color: var(--text-main); }
+    .rules-step-item code {
+      background: var(--bg-surface);
+      padding: 1px 4px;
+      border-radius: 4px;
+      color: var(--gold-glow);
+      font-family: monospace;
+    }
+    .step-num {
+      background: var(--teal-bg);
+      color: var(--teal-glow);
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .rules-pf-box {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+    .rules-pf-title {
+      color: var(--gold-glow);
+      font-weight: 800;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .rules-pill-btn {
+      margin-left: auto;
+      background: var(--teal-bg);
+      border: 1px solid rgba(20, 184, 166, 0.35);
+      color: var(--teal-glow);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .rules-pill-btn:hover {
+      background: var(--teal-base);
+      color: #042F2E;
+    }
+    .rules-pill-btn:active {
+      transform: scale(0.94);
+    }
+
     .icon-btn {
       min-width: 40px;
       min-height: 40px;
@@ -1640,6 +1845,13 @@
           <span class="player-id-badge" id="playerIdBadge">ID: —</span>
         </div>
         <div class="header-actions">
+          <button type="button" class="icon-btn rules-help-trigger" id="rulesTopBtn" aria-label="Game Rules & Paytable" title="Rules & Paytable">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </button>
           <button type="button" class="icon-btn" id="soundQuickBtn" aria-label="Toggle Sound">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M11 5L6 9H2v6h4l5 4V5z"/>
@@ -1695,6 +1907,14 @@
           <div class="payout-tiers" id="payoutTiers">
             <!-- Dynamic tiers -->
           </div>
+          <button type="button" class="rules-pill-btn rules-help-trigger" id="rulesPillBtn" aria-label="Game Rules & Paytable">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            Rules
+          </button>
         </div>
 
         <!-- Ball Tray -->
@@ -2054,6 +2274,76 @@
         <button type="button" class="wdr-submit" id="wdrSubmitBtn" onclick="submitWithdraw()">Request Withdrawal</button>
         <p class="wdr-note">Withdrawals are reviewed and processed manually within 24 hours. Your balance is debited immediately.</p>
         <button type="button" class="wdr-submit" style="background:var(--bg-elevated);color:var(--text-main);border:1px solid var(--border-subtle);margin-top:8px;" onclick="document.getElementById('withdrawModal').classList.remove('open')">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ── RULES & PAYTABLE MODAL ── -->
+    <div class="modal-overlay" id="rulesModal" role="dialog" aria-modal="true" aria-label="Game Rules & Paytable">
+      <div class="modal-sheet rules-modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="rules-modal-header">
+          <div class="modal-title" style="margin-bottom: 0;">📖 Rules & Paytable</div>
+          <button type="button" class="rules-close-btn" onclick="document.getElementById('rulesModal').classList.remove('open')">✕</button>
+        </div>
+
+        <p class="rules-subtitle">Classic 80-Ball Keno with Provably Fair HMAC-SHA256 draws</p>
+
+        <!-- Pick Selector Tabs (1 to 10) -->
+        <div class="rules-spot-tabs-wrap">
+          <label class="rules-section-label">Select Pick Size to View Odds Ladder:</label>
+          <div class="rules-spot-tabs" id="rulesSpotTabs">
+            <!-- Populated dynamically (1 to 10 picks) -->
+          </div>
+        </div>
+
+        <!-- Selected Pick Detail Card -->
+        <div class="rules-pick-card" id="rulesPickCard">
+          <!-- Populated dynamically with matches, multipliers & probabilities -->
+        </div>
+
+        <!-- Highlight: The 3+ Numbers Hit Rule -->
+        <div class="rules-callout">
+          <div class="rules-callout-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            3 or More Numbers Hit Rule
+          </div>
+          <p>
+            • <b>Picks 3 to 7:</b> Hitting 3 or more numbers <b>always awards a winning multiplier</b> (from 1× push up to 3,000× your bet).<br>
+            • <b>Picks 8 to 10:</b> Designed for high jackpots! Payouts trigger on higher tiers scaling all the way up to <b>10,000× your bet</b> (e.g. 10 ETB wins 100,000 ETB!). On 10 picks, catching 0 numbers also pays a 2× consolation win.
+          </p>
+        </div>
+
+        <!-- How to Play Quick Steps -->
+        <div class="rules-steps">
+          <div class="rules-section-label">How to Play:</div>
+          <div class="rules-step-item">
+            <span class="step-num">1</span>
+            <div><b>Choose Numbers:</b> Pick 1 to 10 numbers on the 1–80 grid, or tap <b>Quick Pick</b>.</div>
+          </div>
+          <div class="rules-step-item">
+            <span class="step-num">2</span>
+            <div><b>Place Your Bet:</b> Set your wager from <b>1 ETB</b> up to <b>500 ETB</b> using the bet chips.</div>
+          </div>
+          <div class="rules-step-item">
+            <span class="step-num">3</span>
+            <div><b>Watch the Draw:</b> 20 winning numbers are drawn live one by one. Matched tiles highlight in glowing teal.</div>
+          </div>
+          <div class="rules-step-item">
+            <span class="step-num">4</span>
+            <div><b>Collect Winnings:</b> Payout is calculated as <code>Bet × Multiplier</code> and immediately credited to your balance.</div>
+          </div>
+        </div>
+
+        <!-- Provably Fair Section -->
+        <div class="rules-pf-box">
+          <div class="rules-pf-title">🛡️ 100% Provably Fair Guarantee</div>
+          <p>Every draw is predetermined using cryptographic HMAC-SHA256 from the server seed, client seed, and round nonce. You can independently verify all past rounds under the Fairness tab.</p>
+        </div>
+
+        <button type="button" class="wdr-submit" style="margin-top: 14px;" onclick="document.getElementById('rulesModal').classList.remove('open')">Got it, let's play</button>
       </div>
     </div>
 
@@ -3232,12 +3522,90 @@
       }
 
       // ── Modal Initialization ──
+      const RULES_PROBABILITIES = {
+        1: { 1: '25.0% (1 in 4)' },
+        2: { 1: '38.0% (1 in 2.6)', 2: '6.0% (1 in 17)' },
+        3: { 2: '13.9% (1 in 7.2)', 3: '1.39% (1 in 72)' },
+        4: { 2: '21.3% (1 in 4.7)', 3: '4.3% (1 in 23)', 4: '0.31% (1 in 326)' },
+        5: { 3: '8.4% (1 in 12)', 4: '1.2% (1 in 83)', 5: '0.065% (1 in 1,551)' },
+        6: { 3: '13.0% (1 in 7.7)', 4: '2.8% (1 in 35)', 5: '0.31% (1 in 323)', 6: '0.013% (1 in 7,753)' },
+        7: { 3: '17.5% (1 in 5.7)', 4: '5.2% (1 in 19)', 5: '0.86% (1 in 116)', 6: '0.073% (1 in 1,366)', 7: '0.0024% (1 in 40,980)' },
+        8: { 4: '8.1% (1 in 12)', 5: '1.8% (1 in 55)', 6: '0.24% (1 in 423)', 7: '0.016% (1 in 6,232)', 8: '0.0004% (1 in 230,115)' },
+        9: { 4: '11.4% (1 in 8.8)', 5: '3.3% (1 in 31)', 6: '0.57% (1 in 175)', 7: '0.059% (1 in 1,690)', 8: '0.0033% (1 in 30,682)', 9: '0.00007% (1 in 1.38M)' },
+        10: { 0: '4.58% (1 in 22)', 5: '5.1% (1 in 19)', 6: '1.15% (1 in 87)', 7: '0.16% (1 in 621)', 8: '0.014% (1 in 7,385)', 9: '0.0006% (1 in 163,383)', 10: '0.00001% (1 in 8.91M)' }
+      };
+
+      function openRulesModal(spotCount) {
+        const modal = document.getElementById('rulesModal');
+        if (!modal) return;
+        const count = spotCount || (state.picks.size > 0 ? state.picks.size : 10);
+        selectRulesSpot(count);
+        modal.classList.add('open');
+      }
+      window.openRulesModal = openRulesModal;
+
+      function selectRulesSpot(count) {
+        const c = Math.max(1, Math.min(10, count));
+        document.querySelectorAll('.rules-spot-tab').forEach(t => {
+          t.classList.toggle('active', Number(t.dataset.spot) === c);
+        });
+
+        const card = document.getElementById('rulesPickCard');
+        if (!card) return;
+
+        const table = (state.paytable && state.paytable[c]) || {};
+        const hits = Object.keys(table).map(Number).sort((a,b) => a - b);
+        const probMap = RULES_PROBABILITIES[c] || {};
+
+        let rowsHtml = '';
+        if (hits.length === 0) {
+          rowsHtml = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:12px;">No payouts</td></tr>';
+        } else {
+          hits.forEach(h => {
+            const mult = table[h];
+            const prob = probMap[h] || '—';
+            const exWin = (state.bet * mult).toFixed(2);
+            const hitLabel = (c === 10 && h === 0) ? '0 Hits (Catch Zero)' : `${h} ${h === 1 ? 'Hit' : 'Hits'}`;
+            rowsHtml += `
+              <tr>
+                <td><b>${hitLabel}</b></td>
+                <td><span class="rules-mult-val">${mult}×</span></td>
+                <td>ETB ${exWin}</td>
+                <td><span class="rules-prob-val">${prob}</span></td>
+              </tr>
+            `;
+          });
+        }
+
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:1px solid var(--border-subtle);padding-bottom:6px;">
+            <strong style="color:var(--teal-glow);font-size:13px;">Selected: Pick ${c} Numbers</strong>
+            <span style="font-size:11px;color:var(--text-muted);">Current Bet: ETB ${state.bet.toFixed(2)}</span>
+          </div>
+          <table class="rules-table">
+            <thead>
+              <tr>
+                <th>Matches</th>
+                <th>Multiplier</th>
+                <th>Win on Bet</th>
+                <th>Probability</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        `;
+      }
+      window.selectRulesSpot = selectRulesSpot;
+
       function initModals() {
         try {
           const depBtn = document.getElementById('depositBtn');
           const wdrBtn = document.getElementById('withdrawBtn');
           const depModal = document.getElementById('depositModal');
           const wdrModal = document.getElementById('withdrawModal');
+          const rulesModal = document.getElementById('rulesModal');
 
           if (depBtn && depModal) {
             depBtn.addEventListener('click', () => depModal.classList.add('open'));
@@ -3250,6 +3618,31 @@
             wdrModal.addEventListener('click', function(e) {
               if (e.target === this) this.classList.remove('open');
             });
+          }
+
+          // Rules modal trigger buttons
+          document.querySelectorAll('.rules-help-trigger').forEach(btn => {
+            btn.addEventListener('click', () => openRulesModal());
+          });
+          if (rulesModal) {
+            rulesModal.addEventListener('click', function(e) {
+              if (e.target === this) this.classList.remove('open');
+            });
+          }
+
+          // Build Spot Tabs 1 to 10
+          const tabsContainer = document.getElementById('rulesSpotTabs');
+          if (tabsContainer) {
+            tabsContainer.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+              const tab = document.createElement('button');
+              tab.type = 'button';
+              tab.className = 'rules-spot-tab';
+              tab.dataset.spot = i;
+              tab.textContent = `${i} ${i === 1 ? 'Pick' : 'Picks'}`;
+              tab.addEventListener('click', () => selectRulesSpot(i));
+              tabsContainer.appendChild(tab);
+            }
           }
         } catch (e) {
           console.warn('[initModals note]', e);
