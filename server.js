@@ -76,12 +76,13 @@ if (process.env.TRUST_PROXY !== undefined && process.env.TRUST_PROXY !== '') {
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'", "'unsafe-inline'", 'telegram.org', '*.telegram.org'],
-      styleSrc:    ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
-      fontSrc:     ["'self'", 'fonts.gstatic.com'],
-      connectSrc:  ["'self'"],
-      imgSrc:      ["'self'", 'data:'],
+      defaultSrc:    ["'self'"],
+      scriptSrc:     ["'self'", "'unsafe-inline'", 'telegram.org', '*.telegram.org'],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc:      ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
+      fontSrc:       ["'self'", 'fonts.gstatic.com'],
+      connectSrc:    ["'self'"],
+      imgSrc:        ["'self'", 'data:'],
     },
   },
 }));

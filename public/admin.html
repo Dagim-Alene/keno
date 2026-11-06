@@ -51,7 +51,7 @@
       <h1>🛡️ Keno Administration <span class="badge green">Live Controller</span></h1>
       <div class="auth-banner">
         <input type="text" id="adminTokenInput" class="token-input" placeholder="Admin Token" autocomplete="off" />
-        <button type="button" class="btn btn-teal" onclick="saveToken()">Set Token</button>
+        <button type="button" class="btn btn-teal" id="setTokenBtn">Set Token</button>
         <span id="authStatusBadge" class="badge">Not Checked</span>
       </div>
     </header>
@@ -371,6 +371,11 @@
       loadDeposits();
       loadWithdrawals();
     }
+
+    document.getElementById('setTokenBtn')?.addEventListener('click', saveToken);
+    document.getElementById('adminTokenInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveToken();
+    });
 
     loadAll();
   </script>
