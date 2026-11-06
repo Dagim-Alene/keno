@@ -392,7 +392,7 @@
 
     /* ── Deposit / Withdraw Modal ── */
     .modal-overlay {
-      position: fixed; inset: 0; z-index: 999;
+      position: fixed; inset: 0; z-index: 1500;
       background: rgba(0,0,0,0.65);
       display: none; align-items: flex-end; justify-content: center;
     }
@@ -402,6 +402,9 @@
       border-radius: 20px 20px 0 0;
       width: 100%; max-width: 480px;
       padding: 24px 20px 36px;
+      max-height: 90vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       animation: slideUp 0.28s cubic-bezier(0.34,1.2,0.64,1) forwards;
     }
     @keyframes slideUp {
@@ -2683,9 +2686,9 @@
           <input class="wdr-input" type="text" id="depProof" placeholder="Sender account name or notes" />
         </div>
 
-        <button type="button" class="wdr-submit" id="depSubmitBtn" onclick="submitDepositRequest()">Submit Deposit Request</button>
+        <button type="button" class="wdr-submit" id="depSubmitBtn">Submit Deposit Request</button>
         <p class="wdr-note">Once submitted, your deposit will be verified and credited by admin within 30 minutes.</p>
-        <button type="button" class="wdr-submit" style="background:var(--bg-elevated);color:var(--text-main);border:1px solid var(--border-subtle);margin-top:8px;" onclick="document.getElementById('depositModal').classList.remove('open')">Cancel</button>
+        <button type="button" class="wdr-submit" id="depCancelBtn" style="background:var(--bg-elevated);color:var(--text-main);border:1px solid var(--border-subtle);margin-top:8px;">Cancel</button>
       </div>
     </div>
 
@@ -2713,9 +2716,9 @@
           <input class="wdr-input" type="number" id="wdrAmount" placeholder="Minimum 50 ETB" min="50" step="1" inputmode="numeric" />
         </div>
 
-        <button type="button" class="wdr-submit" id="wdrSubmitBtn" onclick="submitWithdraw()">Request Withdrawal</button>
+        <button type="button" class="wdr-submit" id="wdrSubmitBtn">Request Withdrawal</button>
         <p class="wdr-note">Withdrawals are reviewed and processed manually within 24 hours. Your balance is debited immediately.</p>
-        <button type="button" class="wdr-submit" style="background:var(--bg-elevated);color:var(--text-main);border:1px solid var(--border-subtle);margin-top:8px;" onclick="document.getElementById('withdrawModal').classList.remove('open')">Cancel</button>
+        <button type="button" class="wdr-submit" id="wdrCancelBtn" style="background:var(--bg-elevated);color:var(--text-main);border:1px solid var(--border-subtle);margin-top:8px;">Cancel</button>
       </div>
     </div>
 
@@ -4597,6 +4600,30 @@
             rulesModal.addEventListener('click', function(e) {
               if (e.target === this) this.classList.remove('open');
             });
+          }
+
+          // Deposit modal buttons
+          const depSubmitBtn = document.getElementById('depSubmitBtn');
+          const depCancelBtn = document.getElementById('depCancelBtn');
+          if (depSubmitBtn) {
+            depSubmitBtn.addEventListener('click', () => {
+              if (window.submitDepositRequest) window.submitDepositRequest();
+            });
+          }
+          if (depCancelBtn && depModal) {
+            depCancelBtn.addEventListener('click', () => depModal.classList.remove('open'));
+          }
+
+          // Withdraw modal buttons
+          const wdrSubmitBtn = document.getElementById('wdrSubmitBtn');
+          const wdrCancelBtn = document.getElementById('wdrCancelBtn');
+          if (wdrSubmitBtn) {
+            wdrSubmitBtn.addEventListener('click', () => {
+              if (window.submitWithdraw) window.submitWithdraw();
+            });
+          }
+          if (wdrCancelBtn && wdrModal) {
+            wdrCancelBtn.addEventListener('click', () => wdrModal.classList.remove('open'));
           }
 
           // Build Spot Tabs 1 to 10
