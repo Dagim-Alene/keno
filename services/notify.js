@@ -16,12 +16,17 @@ const ADMIN_CHAT_ID = (process.env.ADMIN_CHAT_ID || '').trim();
  * @param {string|number} chatId
  * @param {string} text  Plain text or HTML
  * @param {string} [parseMode]  'HTML' | 'Markdown' (optional)
+ * @param {object} [replyMarkup]  Inline keyboard or reply markup (optional)
  */
-function sendTelegramMessage(chatId, text, parseMode = 'HTML') {
+function sendTelegramMessage(chatId, text, parseMode = 'HTML', replyMarkup = null) {
   if (!BOT_TOKEN || !chatId) return Promise.resolve();
 
   return new Promise((resolve) => {
-    const body = JSON.stringify({ chat_id: String(chatId), text, parse_mode: parseMode });
+    const payload = { chat_id: String(chatId), text, parse_mode: parseMode };
+    if (replyMarkup) {
+      payload.reply_markup = replyMarkup;
+    }
+    const body = JSON.stringify(payload);
     const opts = {
       hostname: 'api.telegram.org',
       path: `/bot${BOT_TOKEN}/sendMessage`,
@@ -43,22 +48,24 @@ function sendTelegramMessage(chatId, text, parseMode = 'HTML') {
  * Notify a player (uses their Telegram user_id as the chat_id).
  * @param {string|bigint} userId
  * @param {string} message
+ * @param {object} [replyMarkup]
  */
-async function notifyUser(userId, message) {
+async function notifyUser(userId, message, replyMarkup = null) {
   try {
-    await sendTelegramMessage(String(userId), message);
+    await sendTelegramMessage(String(userId), message, 'HTML', replyMarkup);
   } catch (_) { /* non-fatal */ }
 }
 
 /**
  * Notify all admins (sends to ADMIN_CHAT_ID).
  * @param {string} message
+ * @param {object} [replyMarkup]
  */
-async function notifyAdmin(message) {
+async function notifyAdmin(message, replyMarkup = null) {
   if (!ADMIN_CHAT_ID) return;
   try {
-    await sendTelegramMessage(ADMIN_CHAT_ID, message);
+    await sendTelegramMessage(ADMIN_CHAT_ID, message, 'HTML', replyMarkup);
   } catch (_) { /* non-fatal */ }
 }
 
-module.exports = { notifyUser, notifyAdmin };
+module.exports = { notifyUser, notifyAdmin, sendTelegramMessage };

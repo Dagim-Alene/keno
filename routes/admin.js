@@ -132,9 +132,22 @@ router.post('/api/deposit/request', async (req, res) => {
 
     const created = rows[0];
 
-    // Notify admins
+    // Notify admins with direct link to admin dashboard
     notifyAdmin(
-      `📥 <b>New Deposit Request</b>\nUser: <code>${req.userId}</code>\nAmount: <b>${(amountCents / 100).toFixed(2)} ETB</b>\nMethod: ${method}\nRef Code: <code>${referenceCode}</code>\nTx: ${txReference || '—'}`
+      `📥 <b>New Deposit Request #${created.id}</b>\n` +
+      `👤 User: <code>${req.userId}</code> (${req.telegramUsername ? '@' + req.telegramUsername : 'No username'})\n` +
+      `💰 Amount: <b>${(amountCents / 100).toFixed(2)} ETB</b>\n` +
+      `💳 Method: <b>${method.toUpperCase()}</b>\n` +
+      `🔖 Ref Code: <code>${referenceCode}</code>\n` +
+      `🧾 Tx Ref: <code>${txReference || '—'}</code>` +
+      (proofText ? `\n📝 Note: <i>${proofText}</i>` : ''),
+      {
+        inline_keyboard: [
+          [
+            { text: '🛡️ Open Admin Panel', url: 'https://keno-kjaj.onrender.com/admin' }
+          ]
+        ]
+      }
     );
 
     res.status(201).json({
@@ -320,7 +333,18 @@ router.post('/api/withdraw/request', async (req, res) => {
     });
 
     notifyAdmin(
-      `💸 <b>New Withdrawal Request</b>\nUser: <code>${req.userId}</code>\nAmount: <b>${(amountCents / 100).toFixed(2)} ETB</b>\nMethod: ${accountMethod}\nAccount: <code>${accountNumber}</code>`
+      `💸 <b>New Withdrawal Request #${withdrawalId}</b>\n` +
+      `👤 User: <code>${req.userId}</code> (${req.telegramUsername ? '@' + req.telegramUsername : 'No username'})\n` +
+      `💰 Amount: <b>${(amountCents / 100).toFixed(2)} ETB</b>\n` +
+      `💳 Method: <b>${accountMethod.toUpperCase()}</b>\n` +
+      `📱 Destination: <code>${accountNumber}</code>`,
+      {
+        inline_keyboard: [
+          [
+            { text: '🛡️ Open Admin Panel', url: 'https://keno-kjaj.onrender.com/admin' }
+          ]
+        ]
+      }
     );
 
     res.json({ ok: true, withdrawalId: String(withdrawalId), status: 'pending' });
