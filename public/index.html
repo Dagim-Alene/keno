@@ -4331,10 +4331,10 @@
                 <div class="wallet-request-item">
                   <div class="req-left">
                     <span class="req-title">${(d.method || 'Deposit').toUpperCase()}</span>
-                    <span class="req-sub">Ref: ${d.reference_code || d.referenceCode || '—'} • ${d.created_at ? new Date(d.created_at).toLocaleDateString() : ''}</span>
+                    <span class="req-sub">Ref: ${d.referenceCode || d.reference_code || '—'} • ${d.createdAt ? new Date(d.createdAt).toLocaleDateString() : (d.created_at ? new Date(d.created_at).toLocaleDateString() : '')}</span>
                   </div>
                   <div class="req-right">
-                    <span class="req-amount" style="color:var(--teal-glow);">+${currencyFmt.format((d.amount_cents || d.amountCents || 0) / 100)}</span>
+                    <span class="req-amount" style="color:var(--teal-glow);">+${currencyFmt.format(d.amount ?? (d.amount_cents || d.amountCents || 0) / 100)}</span>
                     <span class="status-badge status-${(d.status || 'pending').toLowerCase()}">${(d.status || 'pending').toUpperCase()}</span>
                   </div>
                 </div>`).join('');
@@ -4348,11 +4348,11 @@
               wdrList.innerHTML = wdrs.map(w => `
                 <div class="wallet-request-item">
                   <div class="req-left">
-                    <span class="req-title">${(w.account_method || w.accountMethod || 'Withdrawal').toUpperCase()}</span>
-                    <span class="req-sub">${w.account_number || w.accountNumber || ''} • ${w.created_at ? new Date(w.created_at).toLocaleDateString() : ''}</span>
+                    <span class="req-title">${(w.accountMethod || w.account_method || 'Withdrawal').toUpperCase()}</span>
+                    <span class="req-sub">${w.accountNumber || w.account_number || ''} • ${w.createdAt ? new Date(w.createdAt).toLocaleDateString() : (w.created_at ? new Date(w.created_at).toLocaleDateString() : '')}</span>
                   </div>
                   <div class="req-right">
-                    <span class="req-amount" style="color:var(--gold-glow);">-${currencyFmt.format((w.amount_cents || w.amountCents || 0) / 100)}</span>
+                    <span class="req-amount" style="color:var(--gold-glow);">-${currencyFmt.format(w.amount ?? (w.amount_cents || w.amountCents || 0) / 100)}</span>
                     <span class="status-badge status-${(w.status || 'pending').toLowerCase()}">${(w.status || 'pending').toUpperCase()}</span>
                   </div>
                 </div>`).join('');
@@ -4397,7 +4397,7 @@
         btn.disabled = true; btn.textContent = 'Submitting…';
         try {
           await apiRequest('/api/deposit/request', 'POST', {
-            amount: Math.round(amount * 100),
+            amountCents: Math.round(amount * 100),
             method: method || 'telebirr',
             txReference: txRef,
             proofText: proof || '',
@@ -4633,7 +4633,7 @@
         if (!account) { showToast('Please enter your account number.'); return; }
         if (!amount || amount < 50) { showToast('Minimum withdrawal is ETB 50.'); return; }
         const amountCents = Math.round(amount * 100);
-        if (amountCents > state.balance) { showToast('Insufficient balance for this withdrawal.'); return; }
+        if (amount > state.balance) { showToast('Insufficient balance for this withdrawal.'); return; }
 
         const btn = document.getElementById('wdrSubmitBtn');
         btn.disabled = true; btn.textContent = 'Submitting…';
@@ -4643,6 +4643,7 @@
           showToast('✅ Withdrawal request submitted! Processed within 24 hours.');
           const s = await apiRequest('/api/state');
           if (typeof s.balance === 'number') updateBalanceDisplay(s.balance);
+          loadWalletHistory();
         } catch (err) {
           showToast(`Withdrawal failed: ${err.message}`);
         } finally {
