@@ -59,6 +59,7 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('deposits')">📥 Deposits (<span id="depCount">0</span>)</button>
       <button class="tab-btn" onclick="switchTab('withdrawals')">💸 Withdrawals (<span id="wdrCount">0</span>)</button>
+      <button class="tab-btn" onclick="switchTab('users')">👥 Players (<span id="userCount">0</span>)</button>
       <button class="tab-btn" onclick="switchTab('game')">⚙️ Game Controls</button>
       <button class="tab-btn" onclick="switchTab('audit')">📋 Audit Log</button>
     </div>
@@ -112,7 +113,31 @@
       </div>
     </div>
 
-    <!-- TAB 3: GAME CONTROLS -->
+    <!-- TAB 3: USERS / PLAYERS -->
+    <div id="tab-users" class="tab-content">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3>Registered Players (<span id="totalUsersStat">0</span> total)</h3>
+          <button class="btn btn-teal" onclick="loadUsers()">↻ Refresh</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Telegram ID</th>
+              <th>Username</th>
+              <th>Status</th>
+              <th>Balance</th>
+              <th>Total Bets</th>
+              <th>Total Deposited</th>
+              <th>Joined At</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: GAME CONTROLS -->
     <div id="tab-game" class="tab-content">
       <div class="card">
         <h3 style="margin-bottom:12px;">Game Lifecycle Control</h3>
@@ -191,6 +216,7 @@
       document.getElementById('tab-' + name).classList.add('active');
       if (name === 'deposits') loadDeposits();
       if (name === 'withdrawals') loadWithdrawals();
+      if (name === 'users') loadUsers();
       if (name === 'audit') loadAuditLog();
     }
 
@@ -367,9 +393,42 @@
       }
     }
 
+    async function loadUsers() {
+      try {
+        const res = await fetch('/api/admin/users', { headers: authHeaders() });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ error: res.statusText }));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        const total = data.total || 0;
+        document.getElementById('userCount').textContent = total;
+        document.getElementById('totalUsersStat').textContent = total;
+        const tbody = document.getElementById('usersTableBody');
+        const list = data.users || [];
+        tbody.innerHTML = list.length === 0 ? '<tr><td colspan="7" class="empty-state">No registered players yet</td></tr>' :
+          list.map(u => `
+            <tr>
+              <td><code>${u.id}</code></td>
+              <td><b>${u.username}</b></td>
+              <td><span class="badge ${u.status === 'active' ? 'green' : 'red'}">${u.status}</span></td>
+              <td><b style="color:var(--teal);">ETB ${Number(u.balance).toFixed(2)}</b></td>
+              <td>${u.totalBets}</td>
+              <td><b style="color:var(--gold);">ETB ${Number(u.totalDeposited).toFixed(2)}</b></td>
+              <td>${new Date(u.createdAt).toLocaleDateString()} ${new Date(u.createdAt).toLocaleTimeString()}</td>
+            </tr>
+          `).join('');
+      } catch (err) {
+        console.error(err);
+        const tbody = document.getElementById('usersTableBody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--red);">Error loading users: ${err.message}</td></tr>`;
+      }
+    }
+
     function loadAll() {
       loadDeposits();
       loadWithdrawals();
+      loadUsers();
     }
 
     document.getElementById('setTokenBtn')?.addEventListener('click', saveToken);

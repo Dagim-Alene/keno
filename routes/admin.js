@@ -653,6 +653,49 @@ router.post('/admin/game/resume', requireAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/users - List registered players with wallet balances
+router.get('/api/admin/users', requireAdmin, async (req, res) => {
+  try {
+    const { rows: stats } = await pool.query(`SELECT COUNT(*)::int AS total FROM users`);
+    const { rows: users } = await pool.query(
+      `SELECT u.id, u.username, u.status, u.created_at,
+              COALESCE(w.balance, 0)::bigint AS balance_cents,
+              COALESCE(t.total_bets, 0)::bigint AS total_bets,
+              COALESCE(d.total_deposits_cents, 0)::bigint AS total_deposits_cents
+       FROM users u
+       LEFT JOIN wallets w ON w.user_id = u.id AND w.currency = 'ETB'
+       LEFT JOIN (
+         SELECT user_id, COUNT(*) AS total_bets
+         FROM tickets
+         GROUP BY user_id
+       ) t ON t.user_id = u.id
+       LEFT JOIN (
+         SELECT user_id, SUM(amount_cents) AS total_deposits_cents
+         FROM deposit_requests
+         WHERE status = 'approved'
+         GROUP BY user_id
+       ) d ON d.user_id = u.id
+       ORDER BY u.created_at DESC
+       LIMIT 100`
+    );
+    res.json({
+      total: stats[0]?.total || 0,
+      users: users.map(u => ({
+        id: String(u.id),
+        username: u.username || 'Anonymous',
+        status: u.status,
+        createdAt: u.created_at,
+        balance: Number(u.balance_cents) / 100,
+        totalBets: Number(u.total_bets),
+        totalDeposited: Number(u.total_deposits_cents) / 100,
+      }))
+    });
+  } catch (err) {
+    console.error('[GET /api/admin/users]', err);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
 // GET /api/admin/audit-log
 router.get('/api/admin/audit-log', requireAdmin, async (req, res) => {
   try {
