@@ -52,6 +52,7 @@
       <div class="auth-banner">
         <input type="password" id="adminTokenInput" class="token-input" placeholder="Admin Token" />
         <button type="button" class="btn btn-teal" onclick="saveToken()">Set Token</button>
+        <span id="authStatusBadge" class="badge">Not Checked</span>
       </div>
     </header>
 
@@ -152,11 +153,22 @@
     let token = localStorage.getItem('keno_admin_token') || '';
     if (token) document.getElementById('adminTokenInput').value = token;
 
-    function saveToken() {
+    function updateAuthStatus(ok, msg) {
+      const el = document.getElementById('authStatusBadge');
+      if (!el) return;
+      if (ok) {
+        el.className = 'badge green';
+        el.textContent = '✓ Connected';
+      } else {
+        el.className = 'badge red';
+        el.textContent = msg || 'Auth Error';
+      }
+    }
+
+    async function saveToken() {
       token = document.getElementById('adminTokenInput').value.trim();
       localStorage.setItem('keno_admin_token', token);
-      alert('Token saved');
-      loadAll();
+      await loadAll();
     }
 
     function authHeaders() {
@@ -179,7 +191,12 @@
     async function loadDeposits() {
       try {
         const res = await fetch('/api/admin/deposits', { headers: authHeaders() });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ error: res.statusText }));
+          updateAuthStatus(false, errData.error || `HTTP ${res.status}`);
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
+        updateAuthStatus(true);
         const data = await res.json();
         document.getElementById('depCount').textContent = data.length;
         const tbody = document.getElementById('depositsTableBody');
@@ -188,14 +205,14 @@
             <tr>
               <td>#${d.id}</td>
               <td><b>${d.username}</b> (ID: ${d.userId})</td>
-              <td><b style="color:var(--gold);">ETB ${d.amount.toFixed(2)}</b></td>
+              <td><b style="color:var(--gold);">ETB ${Number(d.amount).toFixed(2)}</b></td>
               <td><span class="badge">${d.method}</span></td>
               <td><code>${d.referenceCode}</code></td>
               <td>${d.txReference || '—'} ${d.note ? '<br><small>'+d.note+'</small>' : ''}</td>
               <td>${new Date(d.createdAt).toLocaleTimeString()}</td>
               <td>
                 <div class="btn-group">
-                  <button class="btn btn-green" onclick="approveDeposit(${d.id})">Approve</button>
+                  <button class="btn btn-green" onclick="approveDeposit(${d.id}, ${d.amount})">Approve</button>
                   <button class="btn btn-red" onclick="rejectDeposit(${d.id})">Reject</button>
                 </div>
               </td>
@@ -203,18 +220,35 @@
           `).join('');
       } catch (err) {
         console.error(err);
+        const tbody = document.getElementById('depositsTableBody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="empty-state" style="color:var(--red);">Error loading deposits: ${err.message}</td></tr>`;
       }
     }
 
-    async function approveDeposit(id) {
-      if (!confirm('Approve deposit #' + id + '? Wallet will be credited immediately.')) return;
-      const res = await fetch('/api/admin/deposits/' + id + '/approve', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ note: 'Approved via admin console' }),
-      });
-      if (res.ok) { alert('Deposit approved!'); loadDeposits(); }
-      else alert('Failed: ' + (await res.json()).error);
+    async function approveDeposit(id, defaultAmount) {
+      const input = prompt(`Enter received amount in ETB to credit (Player requested: ETB ${defaultAmount}):`, defaultAmount);
+      if (input === null) return;
+      const receivedAmount = parseFloat(input);
+      if (isNaN(receivedAmount) || receivedAmount <= 0) {
+        alert('Invalid amount. Please enter a valid number of ETB.');
+        return;
+      }
+      try {
+        const res = await fetch('/api/admin/deposits/' + id + '/approve', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ receivedAmount, note: 'Approved via admin console' }),
+        });
+        const json = await res.json();
+        if (res.ok) {
+          alert('✅ Deposit approved! ' + receivedAmount + ' ETB credited to user.');
+          loadDeposits();
+        } else {
+          alert('Failed: ' + (json.error || 'Server error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
     }
 
     async function rejectDeposit(id) {
@@ -232,7 +266,10 @@
     async function loadWithdrawals() {
       try {
         const res = await fetch('/api/admin/withdrawals', { headers: authHeaders() });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ error: res.statusText }));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
         const data = await res.json();
         document.getElementById('wdrCount').textContent = data.length;
         const tbody = document.getElementById('withdrawalsTableBody');
@@ -241,7 +278,7 @@
             <tr>
               <td>#${w.id}</td>
               <td><b>${w.username}</b> (ID: ${w.userId})</td>
-              <td><b style="color:var(--teal);">ETB ${w.amount.toFixed(2)}</b></td>
+              <td><b style="color:var(--teal);">ETB ${Number(w.amount).toFixed(2)}</b></td>
               <td><span class="badge">${w.accountMethod || 'telebirr'}</span></td>
               <td><code>${w.accountNumber || '—'}</code></td>
               <td>${new Date(w.createdAt).toLocaleTimeString()}</td>
@@ -255,6 +292,8 @@
           `).join('');
       } catch (err) {
         console.error(err);
+        const tbody = document.getElementById('withdrawalsTableBody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--red);">Error loading withdrawals: ${err.message}</td></tr>`;
       }
     }
 
