@@ -720,6 +720,27 @@ router.get('/api/admin/users', requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/admin/test-alert - Send a test alert to verify ADMIN_CHAT_ID
+router.post('/api/admin/test-alert', requireAdmin, async (req, res) => {
+  const adminChatId = (process.env.ADMIN_CHAT_ID || '').trim();
+  if (!adminChatId) {
+    return res.status(400).json({ error: 'ADMIN_CHAT_ID is not configured in environment variables.' });
+  }
+  await notifyAdmin(
+    `🔔 <b>Admin Alert Test Successful!</b>\n\n` +
+    `Your Telegram ID <code>${adminChatId}</code> is linked to Keno Admin.\n` +
+    `You will receive instant alerts for all deposits and withdrawals with direct control links.`,
+    {
+      inline_keyboard: [
+        [
+          { text: '🛡️ Open Admin Panel', url: 'https://keno-kjaj.onrender.com/admin' }
+        ]
+      ]
+    }
+  );
+  res.json({ ok: true, adminChatId });
+});
+
 // GET /api/admin/audit-log
 router.get('/api/admin/audit-log', requireAdmin, async (req, res) => {
   try {

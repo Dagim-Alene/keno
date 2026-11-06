@@ -52,6 +52,7 @@
       <div class="auth-banner">
         <input type="text" id="adminTokenInput" class="token-input" placeholder="Admin Token" autocomplete="off" />
         <button type="button" class="btn btn-teal" id="setTokenBtn">Set Token</button>
+        <button type="button" class="btn btn-green" id="testAlertBtn" onclick="sendTestAlert()" title="Send test alert to your Telegram">🔔 Test Alert</button>
         <span id="authStatusBadge" class="badge">Not Checked</span>
       </div>
     </header>
@@ -422,6 +423,27 @@
         console.error(err);
         const tbody = document.getElementById('usersTableBody');
         if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--red);">Error loading users: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function sendTestAlert() {
+      const btn = document.getElementById('testAlertBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+      try {
+        const res = await fetch('/api/admin/test-alert', {
+          method: 'POST',
+          headers: authHeaders(),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert('✅ Test alert sent! Check your Telegram messages (Chat ID: ' + data.adminChatId + ').');
+        } else {
+          alert('Failed: ' + (data.error || 'Server error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '🔔 Test Alert'; }
       }
     }
 
