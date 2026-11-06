@@ -50,7 +50,7 @@
     <header>
       <h1>🛡️ Keno Administration <span class="badge green">Live Controller</span></h1>
       <div class="auth-banner">
-        <input type="password" id="adminTokenInput" class="token-input" placeholder="Admin Token" />
+        <input type="text" id="adminTokenInput" class="token-input" placeholder="Admin Token" autocomplete="off" />
         <button type="button" class="btn btn-teal" onclick="saveToken()">Set Token</button>
         <span id="authStatusBadge" class="badge">Not Checked</span>
       </div>
@@ -166,7 +166,13 @@
     }
 
     async function saveToken() {
-      token = document.getElementById('adminTokenInput').value.trim();
+      const inputEl = document.getElementById('adminTokenInput');
+      token = (inputEl ? inputEl.value : '').trim();
+      if (!token) {
+        updateAuthStatus(false, 'Token is empty');
+        alert('Please paste the admin token into the input field before clicking Set Token.');
+        return;
+      }
       localStorage.setItem('keno_admin_token', token);
       await loadAll();
     }
