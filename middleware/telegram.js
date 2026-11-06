@@ -61,8 +61,12 @@ function parseInitData(initData) {
  * (which has its own HMAC verification).
  */
 function telegramAuth(req, res, next) {
-  // Skip auth for static files
+  // Skip auth for static files, public health, and admin API endpoints (which use requireAdmin)
   if (!req.path.startsWith('/api') && !req.path.startsWith('/webhooks')) {
+    return next();
+  }
+  // Admin API endpoints are protected by their own requireAdmin middleware
+  if (req.path.startsWith('/api/admin')) {
     return next();
   }
   // Payment webhook uses its own HMAC — skip
